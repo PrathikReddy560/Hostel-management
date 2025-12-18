@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background Circle -->
+    <circle cx="100" cy="100" r="90" fill="#4f46e5" opacity="0.1"/>
+    
+    <!-- House Icon -->
+    <path d="M100 40 L160 90 L160 160 L40 160 L40 90 Z" fill="#4f46e5"/>
+    
+    <!-- Door -->
+    <rect x="85" y="110" width="30" height="50" fill="#2C3E50"/>
+    
+    <!-- Windows -->
+    <rect x="55" y="110" width="20" height="20" fill="#2C3E50"/>
+    <rect x="125" y="110" width="20" height="20" fill="#2C3E50"/>
+    
+    <!-- Roof -->
+    <path d="M100 40 L160 90 L40 90 Z" fill="#2C3E50"/>
+    
+    <!-- H Letter -->
+    <text x="100" y="180" font-family="Arial" font-size="24" font-weight="bold" fill="#4f46e5" text-anchor="middle">H</text>
+</svg> 

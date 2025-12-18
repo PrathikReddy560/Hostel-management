@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #f97316;
+            --accent: #06B6D4;
+            --background: #FFFFFF; /* Set background to white */
+            --text: #1E293B;
+            --card-bg: #FFFFFF;
+            --sidebar-bg: #111827;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease;
+        }
+
+        [data-theme="dark"] {
+            --primary: #3B82F6;
+            --secondary: #FBBF24;
+            --accent: #22D3EE;
+            --background: #1E293B; /* Keep dark background for dark mode */
+            --text: #F1F5F9;
+            --card-bg: #334155;
+            --sidebar-bg: #111827;
+            --success: #34D399;
+            --warning: #FBBF24;
+            --error: #F87171;
+        }
+
+        body {
+            background-image: url('{{ url_for('static', filename='images/dashboardbg.jpg') }}');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            line-height: 1.6; /* Improved readability */
+        }
+
+        .dashboard-wrapper {
+            display: flex;
+            width: 100%;
+            max-width: 1100px;
+            margin: 20px auto;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: var(--sidebar-bg);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: fixed;
+            height: calc(100vh - 40px);
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar.collapsed {
+            width: 50px;
+            padding: 15px 5px;
+        }
+
+        .sidebar.collapsed .nav-link span,
+        .sidebar.collapsed .sidebar-header h3,
+        .sidebar.collapsed .badge,
+        .sidebar.collapsed .profile-section span {
+            display: none;
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .profile-section img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-section span {
+            color: #FFFFFF;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-header h3 {
+            color: #FFFFFF;
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: #FFFFFF;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .toggle-btn:hover {
+            color: var(--secondary);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #FFFFFF;
+            font-weight: 400;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            transition: var(--transition);
+            text-decoration: none;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(3px);
+        }
+
+        .nav-link.active {
+            background: var(--secondary);
+            color: #1E293B;
+            font-weight: 500;
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+        }
+
+        .badge {
+            background: var(--accent);
+            color: #FFFFFF;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: auto;
+            cursor: pointer;
+        }
+
+        .nav-link::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary);
+            color: #FFFFFF;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+            white-space: nowrap;
+            margin-left: 8px;
+        }
+
+        .nav-link:hover::after {
+            opacity: 1;
+        }
+
+        .sidebar.collapsed .nav-link::after {
+            display: none;
+        }
+
+        .main-content {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-left: 235px;
+            transition: var(--transition);
+        }
+
+        .main-content.expanded {
+            margin-left: 65px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .dashboard-title {
+            font-size: 1.75rem;
+            font-weight: 500;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            color: var(--accent);
+        }
+
+        .logout-btn {
+            background: var(--secondary);
+            border: none;
+            padding: 8px 16px;
+            color: #1E293B;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logout-btn:hover {
+            background: #F59E0B;
+            transform: translateY(-1px);
+        }
+
+        .logout-btn:active {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+
+        .tab-pane {
+            animation: fadeIn 0.3s ease;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .form-control, .form-select {
+            border-radius: 6px;
+            border: 1px solid #E2E8F0;
+            padding: 8px;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 6px rgba(6, 182, 212, 0.2);
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--error);
+        }
+
+        .form-label {
+            font-weight: 400;
+            color: var(--text);
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .gradient-btn {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            border: none;
+            padding: 8px 16px;
+            color: #FFFFFF;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border-radius: 6px;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .gradient-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .gradient-btn:active {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+
+        .gradient-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .table {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .table thead {
+            background: var(--primary);
+            color: #FFFFFF;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(6, 182, 212, 0.1);
+        }
+
+        .room-images {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .room-image {
+            flex: 1;
+            max-width: 200px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .room-image img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .room-image.active {
+            border: 2px solid var(--accent);
+        }
+
+        .room-image:hover {
+            transform: translateY(-2px);
+        }
+
+        .room-image p {
+            margin: 8px 0 4px;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .room-image .cost {
+            color: var(--secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .due-amount {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .due-amount h5 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        #map {
+            height: 300px;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 15px;
+        }
+
+        .hotel-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 8px;
+            margin-top: 15px;
+        }
+
+        .hotel-item {
+            background: var(--card-bg);
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .hotel-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .hotel-item h6 {
+            margin: 0 0 6px;
+            font-size: 1rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .mess-menu-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-top: 15px;
+        }
+
+        .mess-menu-table th, .mess-menu-table td {
+            padding: 12px 15px;
+            border: 1px solid #E2E8F0;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+
+        .mess-menu-table th {
+            background: var(--primary);
+            color: #FFFFFF;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .mess-menu-table tbody tr:nth-child(even) td {
+            background-color: #F8FAFC;
+        }
+
+        .mess-menu-table tbody tr:hover td {
+            background-color: rgba(6, 182, 212, 0.08);
+        }
+
+        .mess-menu-table td:first-child {
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        .notification-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 15px;
+            display: none;
+            z-index: 2000;
+        }
+
+        .notification-panel.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification-panel h5 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .notification-item {
+            padding: 8px;
+            border-bottom: 1px solid #E2E8F0;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .loading-spinner {
+            border: 4px solid var(--accent);
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 50px;
+                padding: 15px 5px;
+            }
+
+            .sidebar.collapsed {
+                width: 50px;
+            }
+
+            .main-content {
+                margin-left: 65px;
+            }
+
+            .dashboard-title {
+                font-size: 1.5rem;
+            }
+
+            .room-image {
+                max-width: 100%;
+            }
+        }
+
+        .sidebar-logo {
+            height: 30px; /* Adjust height as needed */
+            width: auto;
+            vertical-align: middle;
+        }
+
+        .sidebar.collapsed .sidebar-logo {
+            display: block; /* Show logo in collapsed state */
+            margin: 0 auto; /* Center logo */
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        </div>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar" id="sidebar">
+            <div class="profile-section">
+                <span>HostelHub</span>
+            </div>
+            <div class="sidebar-header">
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="HostelHub Logo" class="sidebar-logo me-2">
+                <h3>Dashboard</h3>
+                <button class="toggle-btn" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <ul class="nav flex-column" id="dashboardTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="complaint-tab" data-bs-toggle="tab" data-bs-target="#complaint" role="tab" aria-controls="complaint" aria-selected="true" data-tooltip="Report an issue" aria-label="Register a complaint"><i class="fas fa-exclamation-circle"></i><span>Complaint</span><span class="badge" id="complaintBadge">0</span></a>
+            </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false" data-tooltip="View attendance" aria-label="Check attendance"><i class="fas fa-chart-bar"></i><span>Attendance</span></a>
+            </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="absence-tab" data-bs-toggle="tab" data-bs-target="#absence" role="tab" aria-controls="absence" aria-selected="false" data-tooltip="Report absence" aria-label="Report absence"><i class="fas fa-user-slash"></i><span>Absence</span></a>
+            </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="holiday-tab" data-bs-toggle="tab" data-bs-target="#holiday" role="tab" aria-controls="holiday" aria-selected="false" data-tooltip="Request holiday" aria-label="Request holiday"><i class="fas fa-plane"></i><span>Holiday</span></a>
+            </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="rooms-tab" data-bs-toggle="tab" data-bs-target="#rooms" role="tab" aria-controls="rooms" aria-selected="false" data-tooltip="View rooms" aria-label="Available rooms"><i class="fas fa-door-open"></i><span>Rooms</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment" role="tab" aria-controls="payment" aria-selected="false" data-tooltip="Make payment" aria-label="Fee payment"><i class="fas fa-credit-card"></i><span>Payment</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="hotels-tab" data-bs-toggle="tab" data-bs-target="#hotels" role="tab" aria-controls="hotels" aria-selected="false" data-tooltip="Find hotels" aria-label="Nearby hotels"><i class="fas fa-hotel"></i><span>Restaurants</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="menu-tab" data-bs-toggle="tab" data-bs-target="#menu" role="tab" aria-controls="menu" aria-selected="false" data-tooltip="View menu" aria-label="Mess menu"><i class="fas fa-utensils"></i><span>Menu</span></a>
+            </li>
+        </ul>
+        </div>
+
+        <!-- Notification Panel -->
+        <div class="notification-panel" id="notificationPanel">
+            <h5>Notifications</h5>
+            <div id="notificationList"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <div class="dashboard-header">
+                <h2 class="dashboard-title">Student Dashboard</h2>
+                <div>
+                    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="/logout" class="logout-btn" aria-label="Logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+                </div>
+            </div>
+        <div class="tab-content" id="dashboardTabContent">
+            <!-- Register Complaint -->
+            <div class="tab-pane fade show active" id="complaint" role="tabpanel" aria-labelledby="complaint-tab">
+                    <div class="card">
+                <h4>Register a Complaint</h4>
+                        <p class="text-muted mb-4">Submit issues or concerns about hostel facilities.</p>
+                        <div class="form-group">
+                            <textarea class="form-control" id="complaintDescription" rows="4" placeholder=" " required></textarea>
+                    <label for="complaintDescription" class="form-label">Description</label>
+                </div>
+                        <div class="form-group">
+                    <input type="date" class="form-control" id="complaintDate" required>
+                            <label for="complaintDate" class="form-label">Date</label>
+                </div>
+                        <div class="d-flex align-items-center">
+                            <button onclick="submitComplaint()" class="gradient-btn"><i class="fas fa-paper-plane me-2"></i>Submit</button>
+                            <div id="complaintSpinner" class="spinner"></div>
+                        </div>
+                        <div id="complaintMessage" class="mt-3" aria-live="polite"></div>
+                    </div>
+            </div>
+
+            <!-- Check Attendance -->
+            <div class="tab-pane fade" id="attendance" role="tabpanel" aria-labelledby="attendance-tab">
+                    <div class="card">
+                <h4>Attendance History</h4>
+                        <p class="text-muted mb-4">View your attendance in graph or table format.</p>
+                        <div class="view-toggle">
+                            <button class="gradient-btn" onclick="toggleAttendanceView('graph')"><i class="fas fa-chart-bar me-2"></i>Graph</button>
+                            <button class="gradient-btn" onclick="toggleAttendanceView('table')"><i class="fas fa-table me-2"></i>Table</button>
+                        </div>
+                        <div id="attendanceGraphView">
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
+                        <div id="attendanceTableView" style="display: none;">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody"></tbody>
+                </table>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <button onclick="fetchAttendance()" class="gradient-btn"><i class="fas fa-sync-alt me-2"></i>Refresh</button>
+                            <div id="attendanceSpinner" class="spinner"></div>
+                        </div>
+                    </div>
+            </div>
+
+            <!-- Report Absence -->
+            <div class="tab-pane fade" id="absence" role="tabpanel" aria-labelledby="absence-tab">
+                    <div class="card">
+                <h4>Report Absence</h4>
+                        <p class="text-muted mb-4">Notify about a missed class or event.</p>
+                        <div class="form-group">
+                    <input type="date" class="form-control" id="absenceDate" required>
+                            <label for="absenceDate" class="form-label">Date</label>
+                </div>
+                        <div class="form-group">
+                            <textarea class="form-control" id="absenceReason" rows="4" placeholder=" " required></textarea>
+                    <label for="absenceReason" class="form-label">Reason</label>
+                </div>
+                        <div class="d-flex align-items-center">
+                            <button onclick="submitAbsence()" class="gradient-btn"><i class="fas fa-paper-plane me-2"></i>Submit</button>
+                            <div id="absenceSpinner" class="spinner"></div>
+                        </div>
+                        <div id="absenceMessage" class="mt-3" aria-live="polite"></div>
+                    </div>
+            </div>
+
+            <!-- Request Holiday -->
+            <div class="tab-pane fade" id="holiday" role="tabpanel" aria-labelledby="holiday-tab">
+                    <div class="card">
+                <h4>Request Holiday</h4>
+                        <p class="text-muted mb-4">Submit a leave or vacation request.</p>
+                        <div class="form-group">
+                    <input type="date" class="form-control" id="startDate" required>
+                            <label for="startDate" class="form-label">Start Date</label>
+                </div>
+                        <div class="form-group">
+                    <input type="date" class="form-control" id="endDate" required>
+                            <label for="endDate" class="form-label">End Date</label>
+                </div>
+                        <div class="form-group">
+                            <textarea class="form-control" id="holidayReason" rows="4" placeholder=" " required></textarea>
+                    <label for="holidayReason" class="form-label">Reason</label>
+                </div>
+                        <div class="d-flex align-items-center">
+                            <button onclick="submitHoliday()" class="gradient-btn"><i class="fas fa-paper-plane me-2"></i>Submit</button>
+                            <div id="holidaySpinner" class="spinner"></div>
+                        </div>
+                        <div id="holidayMessage" class="mt-3" aria-live="polite"></div>
+                    </div>
+            </div>
+
+            <!-- Available Rooms -->
+            <div class="tab-pane fade" id="rooms" role="tabpanel" aria-labelledby="rooms-tab">
+                    <div class="card">
+                <h4>Available Rooms</h4>
+                        <p class="text-muted mb-4">Check available hostel rooms.</p>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Room Number</th>
+                            <th>Hostel Name</th>
+                            <th>Location</th>
+                            <th>Capacity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr>
+                                <td colspan="4" class="text-center">No available rooms at the moment.</td>
+                            </tr>
+                    </tbody>
+                </table>
+            </div>
+                </div>
+
+                <!-- Fee Payment -->
+                <div class="tab-pane fade" id="payment" role="tabpanel" aria-labelledby="payment-tab">
+                    <div class="card">
+                        <h4>Fee Payment</h4>
+                        <p class="text-muted mb-4">Pay hostel or mess fees.</p>
+                        <div class="due-amount">
+                            <h5>Due Amount: <span id="dueAmount">5000</span></h5>
+                        </div>
+                        <div class="form-group">
+                            <select class="form-select" id="paymentType" required aria-label="Select Payment Type">
+                                <option value="" disabled selected>Select Payment Type</option>
+                                <option value="Hostel Fee">Hostel Fee</option>
+                                <option value="Mess Fee">Mess Fee</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <label for="paymentType" class="form-label">Payment Type</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" class="form-control" id="paymentAmount" min="1" placeholder=" " required>
+                            <label for="paymentAmount" class="form-label">Amount ($)</label>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <button onclick="submitPayment()" class="gradient-btn"><i class="fas fa-credit-card me-2"></i>Pay Now</button>
+                            <div id="paymentSpinner" class="spinner"></div>
+                        </div>
+                        <div id="paymentMessage" class="mt-3" aria-live="polite"></div>
+        </div>
+    </div>
+
+                <!-- Nearby Hotels -->
+                <div class="tab-pane fade" id="hotels" role="tabpanel" aria-labelledby="hotels-tab">
+                    <div class="card">
+                        <h4>Near by Restaurants</h4>
+                        <p class="text-muted mb-4">Explore nearby restaurants for visitors.</p>
+                        <div id="map"></div>
+                        <h5>Restaurant List</h5>
+                        <div class="hotel-list" id="hotelList"></div>
+                        <div class="d-flex align-items-center">
+                            <button onclick="fetchHotels()" class="gradient-btn mt-3"><i class="fas fa-sync-alt me-2"></i>Refresh</button>
+                            <div id="hotelsSpinner" class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mess Menu -->
+                <div class="tab-pane fade" id="menu" role="tabpanel" aria-labelledby="menu-tab">
+                    <div class="card">
+                        <h4>Mess Menu Timetable</h4>
+                        <p class="text-muted mb-4">Weekly meal schedule.</p>
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <span>Weekly Menu</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="collapsible-content">
+                            <p class="mb-4"><strong>Meal Times:</strong> Breakfast: 7:00 AM - 9:00 AM | Lunch: 12:00 PM - 2:00 PM | Dinner: 7:00 PM - 9:00 PM</p>
+                            <table class="mess-menu-table">
+                                <thead>
+                                    <tr>
+                                        <th>Day</th>
+                                        <th>Breakfast</th>
+                                        <th>Lunch</th>
+                                        <th>Dinner</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Monday</td>
+                                        <td>Paratha, Curd, Tea</td>
+                                        <td>Rice, Dal, Mixed Veg, Salad</td>
+                                        <td>Chapati, Paneer Curry, Rice, Dessert</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tuesday</td>
+                                        <td>Idli, Sambar, Coffee</td>
+                                        <td>Rajma, Rice, Raita, Papad</td>
+                                        <td>Chicken Curry, Chapati, Salad</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Wednesday</td>
+                                        <td>Poha, Juice, Toast</td>
+                                        <td>Chole, Rice, Bhature, Salad</td>
+                                        <td>Veg Biryani, Raita, Dessert</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Thursday</td>
+                                        <td>Dosa, Chutney, Tea</td>
+                                        <td>Palak Paneer, Naan, Rice</td>
+                                        <td>Fish Curry, Chapati, Salad</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Friday</td>
+                                        <td>Aloo Paratha, Pickle, Milk</td>
+                                        <td>Matar Pulao, Dal, Salad</td>
+                                        <td>Egg Curry, Rice, Chapati</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Saturday</td>
+                                        <td>Upma, Juice, Bread</td>
+                                        <td>Veg Pulao, Dal Tadka, Raita</td>
+                                        <td>Mutton Curry, Naan, Dessert</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sunday</td>
+                                        <td>Chole Bhature, Lassi</td>
+                                        <td>Butter Chicken, Rice, Naan</td>
+                                        <td>Veg Manchurian, Fried Rice, Salad</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <script>
+        // Room costs
+        const roomCosts = {
+            '1BHK': 500,
+            '2BHK': 800,
+            '3BHK': 1200
+        };
+
+        // Attendance chart
+        let attendanceChart;
+
+        // Utility to show/hide spinner
+        function toggleSpinner(spinnerId, show) {
+            const spinner = document.getElementById(spinnerId);
+            spinner.style.display = show ? 'block' : 'none';
+        }
+
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+
+        // Toggle Theme
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            body.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+            const icon = document.querySelector('.theme-toggle i');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+        }
+
+        // Collapsible toggle
+        function toggleCollapsible(element) {
+            const content = element.nextElementSibling;
+            content.classList.toggle('show');
+            const icon = element.querySelector('i');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+
+        // Validate Form Inputs
+        function validateInput(input) {
+            if (!input.value.trim()) {
+                input.classList.add('is-invalid');
+                return false;
+            } else {
+                input.classList.remove('is-invalid');
+                return true;
+            }
+        }
+
+        // Add validation listeners
+        function addValidationListeners(formId) {
+            const inputs = document.querySelectorAll(`#${formId} .form-control, #${formId} .form-select`);
+            inputs.forEach(input => {
+                input.addEventListener('blur', () => validateInput(input));
+                input.addEventListener('input', () => validateInput(input));
+            });
+        }
+
+        // Simulate notifications
+        let notifications = [
+            { id: 1, message: 'Complaint #123 pending review', date: '2025-05-13' },
+            { id: 2, message: 'Complaint #124 submitted', date: '2025-05-12' }
+        ];
+
+        function updateNotifications() {
+            const badge = document.getElementById('complaintBadge');
+            badge.textContent = notifications.length;
+            const notificationList = document.getElementById('notificationList');
+            notificationList.innerHTML = notifications.length ? 
+                notifications.map(n => `<div class="notification-item">${n.message} (${n.date})</div>`).join('') :
+                '<div class="notification-item">No new notifications</div>';
+        }
+
+        function toggleNotificationPanel() {
+            const panel = document.getElementById('notificationPanel');
+            panel.classList.toggle('show');
+        }
+
+        // Submit Complaint
+        async function submitComplaint() {
+            const description = document.getElementById('complaintDescription');
+            const complaintDate = document.getElementById('complaintDate');
+            if (!validateInput(description) || !validateInput(complaintDate)) {
+                document.getElementById('complaintMessage').innerHTML = `<div class="alert alert-warning animate__animated animate__fadeIn">Please fill in all fields.</div>`;
+                return;
+            }
+            toggleSpinner('complaintSpinner', true);
+            document.querySelector('#complaint .gradient-btn').disabled = true;
+            try {
+                const response = await fetch('/api/complaints', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ description: description.value, complaint_date: complaintDate.value })
+                });
+                const result = await response.json();
+                document.getElementById('complaintMessage').innerHTML = `<div class="alert alert-success animate__animated animate__fadeIn">${result.message}</div>`;
+                description.value = '';
+                complaintDate.value = '';
+                notifications.push({ id: notifications.length + 1, message: `Complaint #${notifications.length + 1} submitted`, date: new Date().toISOString().split('T')[0] });
+                updateNotifications();
+            } catch (error) {
+                document.getElementById('complaintMessage').innerHTML = `<div class="alert alert-danger animate__animated animate__fadeIn">Error: ${error.message}</div>`;
+            } finally {
+                toggleSpinner('complaintSpinner', false);
+                document.querySelector('#complaint .gradient-btn').disabled = false;
+            }
+        }
+
+        // Fetch Attendance
+        async function fetchAttendance() {
+            toggleSpinner('attendanceSpinner', true);
+            document.querySelector('#attendance .gradient-btn').disabled = true;
+            try {
+                const attendance = [
+                    { date: '2025-05-01', status: 'Present' },
+                    { date: '2025-05-02', status: 'Absent' },
+                    { date: '2025-05-03', status: 'Present' },
+                    { date: '2025-05-04', status: 'Present' },
+                    { date: '2025-05-05', status: 'Absent' },
+                    { date: '2025-05-06', status: 'Present' },
+                    { date: '2025-05-07', status: 'Present' }
+                ];
+                const tbody = document.getElementById('attendanceTableBody');
+                tbody.innerHTML = '';
+                attendance.forEach(record => {
+                    const row = `<tr><td>${record.date}</td><td>${record.status}</td></tr>`;
+                    tbody.innerHTML += row;
+                });
+
+                const dates = attendance.map(record => record.date);
+                const presentCount = attendance.map(record => record.status === 'Present' ? 1 : 0);
+                const absentCount = attendance.map(record => record.status === 'Absent' ? 1 : 0);
+
+                if (attendanceChart) {
+                    attendanceChart.destroy();
+                }
+                const ctx = document.getElementById('attendanceChart').getContext('2d');
+                attendanceChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: dates,
+                        datasets: [
+                            {
+                                label: 'Present',
+                                data: presentCount,
+                                backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                                borderColor: 'rgba(16, 185, 129, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Absent',
+                                data: absentCount,
+                                backgroundColor: 'rgba(239, 68, 68, 0.6)',
+                                borderColor: 'rgba(239, 68, 68, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Days', font: { size: 12, weight: '500' } },
+                                grid: { color: '#E5E7EB' }
+                            },
+                            x: {
+                                title: { display: true, text: 'Date', font: { size: 12, weight: '500' } },
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { position: 'top', labels: { font: { size: 11, weight: '400' } } },
+                            title: { display: true, text: 'Attendance History', font: { size: 14, weight: '500' }, color: '#1E293B' }
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            } catch (error) {
+                document.getElementById('attendanceMessage').innerHTML = `<div class="alert alert-danger animate__animated animate__fadeIn">Error: ${error.message}</div>`;
+            } finally {
+                toggleSpinner('attendanceSpinner', false);
+                document.querySelector('#attendance .gradient-btn').disabled = false;
+            }
+        }
+
+        // Toggle between graph and table view
+        function toggleAttendanceView(view) {
+            const graphView = document.getElementById('attendanceGraphView');
+            const tableView = document.getElementById('attendanceTableView');
+            if (view === 'graph') {
+                graphView.style.display = 'block';
+                tableView.style.display = 'none';
+            } else {
+                graphView.style.display = 'none';
+                tableView.style.display = 'block';
+            }
+        }
+
+        // Submit Absence
+        async function submitAbsence() {
+            const date = document.getElementById('absenceDate');
+            const reason = document.getElementById('absenceReason');
+            if (!validateInput(date) || !validateInput(reason)) {
+                document.getElementById('absenceMessage').innerHTML = `<div class="alert alert-warning animate__animated animate__fadeIn">Please fill in all fields.</div>`;
+                return;
+            }
+            toggleSpinner('absenceSpinner', true);
+            document.querySelector('#absence .gradient-btn').disabled = true;
+            try {
+                const response = await fetch('/api/absence', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date: date.value, reason: reason.value })
+                });
+                const result = await response.json();
+                document.getElementById('absenceMessage').innerHTML = `<div class="alert alert-success animate__animated animate__fadeIn">${result.message}</div>`;
+                date.value = '';
+                reason.value = '';
+            } catch (error) {
+                document.getElementById('absenceMessage').innerHTML = `<div class="alert alert-danger animate__animated animate__fadeIn">Error: ${error.message}</div>`;
+            } finally {
+                toggleSpinner('absenceSpinner', false);
+                document.querySelector('#absence .gradient-btn').disabled = false;
+            }
+        }
+
+        // Submit Holiday Request
+        async function submitHoliday() {
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            const reason = document.getElementById('holidayReason');
+            if (!validateInput(startDate) || !validateInput(endDate) || !validateInput(reason)) {
+                document.getElementById('holidayMessage').innerHTML = `<div class="alert alert-warning animate__animated animate__fadeIn">Please fill in all fields.</div>`;
+                return;
+            }
+            if (new Date(endDate.value) < new Date(startDate.value)) {
+                document.getElementById('holidayMessage').innerHTML = `<div class="alert alert-warning animate__animated animate__fadeIn">End date must be after start date.</div>`;
+                return;
+            }
+            toggleSpinner('holidaySpinner', true);
+            document.querySelector('#holiday .gradient-btn').disabled = true;
+            try {
+                const response = await fetch('/api/holiday', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ start_date: startDate.value, end_date: endDate.value, reason: reason.value })
+                });
+                const result = await response.json();
+                document.getElementById('holidayMessage').innerHTML = `<div class="alert alert-success animate__animated animate__fadeIn">${result.message}</div>`;
+                startDate.value = '';
+                endDate.value = '';
+                reason.value = '';
+            } catch (error) {
+                document.getElementById('holidayMessage').innerHTML = `<div class="alert alert-danger animate__animated animate__fadeIn">Error: ${error.message}</div>`;
+            } finally {
+                toggleSpinner('holidaySpinner', false);
+                document.querySelector('#holiday .gradient-btn').disabled = false;
+            }
+        }
+
+        // Submit Payment
+        async function submitPayment() {
+            const paymentType = document.getElementById('paymentType');
+            const paymentAmount = document.getElementById('paymentAmount');
+            if (!validateInput(paymentType) || !validateInput(paymentAmount) || paymentAmount.value <= 0) {
+                document.getElementById('paymentMessage').innerHTML = `<div class="alert alert-warning animate__animated animate__fadeIn">Please select a payment type and enter a valid amount.</div>`;
+                return;
+            }
+            toggleSpinner('paymentSpinner', true);
+            document.querySelector('#payment .gradient-btn').disabled = true;
+            try {
+                const response = await fetch('/api/payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ payment_type: paymentType.value, amount: parseFloat(paymentAmount.value) })
+                });
+                const result = await response.json();
+                document.getElementById('paymentMessage').innerHTML = `<div class="alert alert-success animate__animated animate__fadeIn">${result.message}</div>`;
+                paymentType.value = '';
+                paymentAmount.value = '';
+                fetchDueAmount();
+            } catch (error) {
+                document.getElementById('paymentMessage').innerHTML = `<div class="alert alert-danger animate__animated animate__fadeIn">Error: ${error.message}</div>`;
+            } finally {
+                toggleSpinner('paymentSpinner', false);
+                document.querySelector('#payment .gradient-btn').disabled = false;
+            }
+        }
+
+        // Google Maps initialization
+        let map;
+        function initMap() {
+            const hostelLocation = { lat: 40.7128, lng: -74.0060 };
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: hostelLocation,
+                zoom: 12
+            });
+            fetchHotels();
+        }
+
+        // Fetch Hotels
+        async function fetchHotels() {
+            toggleSpinner('hotelsSpinner', true);
+            document.querySelector('#hotels .gradient-btn').disabled = true;
+            try {
+                const hotels = [
+                    { name: 'City Hotel', address: '123 Main St', distance: '1.2 km', lat: 40.718, lng: -74.008 },
+                    { name: 'Grand Inn', address: '456 Park Ave', distance: '2.5 km', lat: 40.710, lng: -74.010 },
+                    { name: 'Comfort Suites', address: '789 Elm St', distance: '3.1 km', lat: 40.715, lng: -74.002 }
+                ];
+                const hotelList = document.getElementById('hotelList');
+                hotelList.innerHTML = '';
+                hotels.forEach(hotel => {
+                    const marker = new google.maps.Marker({
+                        position: { lat: hotel.lat, lng: hotel.lng },
+                        map: map,
+                        title: hotel.name
+                    });
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `<h6>${hotel.name}</h6><p>${hotel.address}</p><p>${hotel.distance}</p>`
+                    });
+                    marker.addListener('click', () => {
+                        infoWindow.open(map, marker);
+                    });
+                    const hotelItem = document.createElement('div');
+                    hotelItem.className = 'hotel-item';
+                    hotelItem.innerHTML = `
+                        <h6>${hotel.name}</h6>
+                        <p><strong>Address:</strong> ${hotel.address}</p>
+                        <p><strong>Distance:</strong> ${hotel.distance}</p>
+                    `;
+                    hotelList.appendChild(hotelItem);
+                });
+            } catch (error) {
+                document.getElementById('hotelList').innerHTML = `<div class="alert alert-danger animate__animated animate__fadeIn">Error: ${error.message}</div>`;
+            } finally {
+                toggleSpinner('hotelsSpinner', false);
+                document.querySelector('#hotels .gradient-btn').disabled = false;
+            }
+        }
+
+        // Fetch Due Amount
+        async function fetchDueAmount() {
+            try {
+                const response = await fetch('/api/due-amount');
+                const result = await response.json();
+                document.getElementById('dueAmount').textContent = `$${result.due_amount}`;
+            } catch (error) {
+                document.getElementById('dueAmount').textContent = 'Error fetching due amount';
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add validation listeners
+            ['complaint', 'absence', 'holiday', 'payment'].forEach(formId => addValidationListeners(formId));
+            
+            // Initialize notifications
+            updateNotifications();
+            document.getElementById('complaintBadge').addEventListener('click', toggleNotificationPanel);
+
+            // Fetch initial data
+            fetchDueAmount();
+            fetchAttendance();
+            document.querySelector('.collapsible-content').classList.add('show');
+
+            // Hide loading overlay after 1 second (simulate data fetch)
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warden Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #f97316;
+            --accent: #06B6D4;
+            --background: #FFFFFF; /* Set background to white */
+            --text: #1E293B;
+            --card-bg: #FFFFFF;
+            --sidebar-bg: #111827;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease;
+        }
+
+        [data-theme="dark"] {
+            --primary: #3B82F6;
+            --secondary: #FBBF24;
+            --accent: #22D3EE;
+            --background: #1E293B; /* Keep dark background for dark mode */
+            --text: #F1F5F9;
+            --card-bg: #334155;
+            --sidebar-bg: #111827;
+            --success: #34D399;
+            --warning: #FBBF24;
+            --error: #F87171;
+        }
+
+        body {
+            background-image: url('{{ url_for('static', filename='images/dashboardbg.jpg') }}');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            line-height: 1.6; /* Improved readability */
+        }
+
+        .dashboard-wrapper {
+            display: flex;
+            width: 100%;
+            max-width: 1100px;
+            margin: 20px auto;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: var(--sidebar-bg);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: fixed;
+            height: calc(100vh - 40px);
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar.collapsed {
+            width: 50px;
+            padding: 15px 5px;
+        }
+
+        .sidebar.collapsed .nav-link span,
+        .sidebar.collapsed .sidebar-header h3,
+        .sidebar.collapsed .badge,
+        .sidebar.collapsed .profile-section span {
+            display: none;
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .profile-section img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-section span {
+            color: #FFFFFF;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-header h3 {
+            color: #FFFFFF;
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: #FFFFFF;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .toggle-btn:hover {
+            color: var(--secondary);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #FFFFFF;
+            font-weight: 400;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            transition: var(--transition);
+            text-decoration: none;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(3px);
+        }
+
+        .nav-link.active {
+            background: var(--secondary);
+            color: #1E293B;
+            font-weight: 500;
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+        }
+
+        .badge {
+            background: var(--accent);
+            color: #FFFFFF;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: auto;
+            cursor: pointer;
+        }
+
+        .nav-link::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary);
+            color: #FFFFFF;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+            white-space: nowrap;
+            margin-left: 8px;
+        }
+
+        .nav-link:hover::after {
+            opacity: 1;
+        }
+
+        .sidebar.collapsed .nav-link::after {
+            display: none;
+        }
+
+        .main-content {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-left: 235px;
+            transition: var(--transition);
+        }
+
+        .main-content.expanded {
+            margin-left: 65px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .dashboard-title {
+            font-size: 1.75rem;
+            font-weight: 500;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            color: var(--accent);
+        }
+
+        .logout-btn {
+            background: var(--secondary);
+            border: none;
+            padding: 8px 16px;
+            color: #1E293B;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logout-btn:hover {
+            background: #F59E0B;
+            transform: translateY(-1px);
+        }
+
+        .logout-btn:active {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+
+        .tab-pane {
+            animation: fadeIn 0.3s ease;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .form-control, .form-select {
+            border-radius: 6px;
+            border: 1px solid #E2E8F0;
+            padding: 8px;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 6px rgba(6, 182, 212, 0.2);
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--error);
+        }
+
+        .form-label {
+            font-weight: 400;
+            color: var(--text);
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .gradient-btn {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            border: none;
+            padding: 8px 16px;
+            color: #FFFFFF;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border-radius: 6px;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .gradient-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .gradient-btn:active {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+
+        .gradient-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .table {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .table thead {
+            background: var(--primary);
+            color: #FFFFFF;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(6, 182, 212, 0.1);
+        }
+
+        /* Specific styling for Status column badges */
+        .table td .badge {
+            padding: 5px 10px;
+            border-radius: 12px; /* More rounded corners */
+            font-weight: 500;
+            min-width: 80px; /* Ensure consistent width */
+            display: inline-block; /* Proper padding and alignment */
+            text-align: center;
+        }
+
+        /* Optional: Add subtle background to specific columns */
+        .table tbody td:nth-child(1) { /* Complaint ID */
+             font-weight: 500;
+             color: var(--primary);
+        }
+
+        .table tbody td:nth-child(2) { /* Student */
+             text-align: left;
+        }
+
+         .table tbody td:nth-child(4) { /* Room */
+             font-weight: 500;
+         }
+
+        .table tbody td:nth-child(5) { /* Date */
+            font-size: 0.9rem;
+            color: #607D8B; /* Subtle text color */
+        }
+
+        .total-students-card, .search-result-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .total-students-card h3, .search-result-card h5 {
+            margin: 0 0 10px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .search-result-card p {
+            margin: 5px 0;
+            color: var(--text);
+        }
+
+        .notification-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 15px;
+            display: none;
+            z-index: 2000;
+        }
+
+        .notification-panel.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification-panel h5 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .notification-item {
+            padding: 8px;
+            border-bottom: 1px solid #E2E8F0;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .loading-spinner {
+            border: 4px solid var(--accent);
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 50px;
+                padding: 15px 5px;
+            }
+
+            .sidebar.collapsed {
+                width: 50px;
+            }
+
+            .main-content {
+                margin-left: 65px;
+            }
+
+            .dashboard-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Add new CSS rules for the logo */
+        .sidebar-logo {
+            height: 30px; /* Adjust height as needed */
+            width: auto;
+            vertical-align: middle;
+        }
+
+        .sidebar.collapsed .sidebar-logo {
+            display: block; /* Show logo in collapsed state */
+            margin: 0 auto; /* Center logo */
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar" id="sidebar">
+            <div class="profile-section">
+                <span>HostelHub</span>
+            </div>
+            <div class="sidebar-header">
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="HostelHub Logo" class="sidebar-logo me-2">
+                <h3>Dashboard</h3>
+                <button class="toggle-btn" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+        </div>
+            <ul class="nav flex-column" id="dashboardTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="complaints-tab" data-bs-toggle="tab" data-bs-target="#complaints" role="tab" aria-controls="complaints" aria-selected="true" data-tooltip="Manage complaints" aria-label="Manage complaints"><i class="fas fa-exclamation-circle"></i><span>Complaints</span><span class="badge" id="complaintBadge">0</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false" data-tooltip="Mark attendance" aria-label="Mark attendance"><i class="fas fa-check-circle"></i><span>Attendance</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="add-student-tab" data-bs-toggle="tab" data-bs-target="#add-student" role="tab" aria-controls="add-student" aria-selected="false" data-tooltip="Add student" aria-label="Add student"><i class="fas fa-user-plus"></i><span>Add Student</span></a>
+            </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="rooms-tab" data-bs-toggle="tab" data-bs-target="#rooms" role="tab" aria-controls="rooms" aria-selected="false" data-tooltip="View rooms" aria-label="Available rooms"><i class="fas fa-door-open"></i><span>Rooms</span></a>
+            </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="total-students-tab" data-bs-toggle="tab" data-bs-target="#total-students" role="tab" aria-controls="total-students" aria-selected="false" data-tooltip="Total students" aria-label="Total students"><i class="fas fa-users"></i><span>Total Students</span></a>
+            </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="search-student-tab" data-bs-toggle="tab" data-bs-target="#search-student" role="tab" aria-controls="search-student" aria-selected="false" data-tooltip="Search student" aria-label="Search student"><i class="fas fa-search"></i><span>Search Student</span></a>
+            </li>
+        </ul>
+        </div>
+
+        <!-- Notification Panel -->
+        <div class="notification-panel" id="notificationPanel">
+            <h5>Notifications</h5>
+            <div id="notificationList"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <div class="dashboard-header">
+                <h2 class="dashboard-title">Warden Dashboard</h2>
+                <div>
+                    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="/logout" class="logout-btn" aria-label="Logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+                </div>
+            </div>
+        <div class="tab-content" id="dashboardTabContent">
+            <!-- Manage Complaints -->
+            <div class="tab-pane fade show active" id="complaints" role="tabpanel" aria-labelledby="complaints-tab">
+                    <div class="card">
+                <h4>Manage Complaints</h4>
+                        <p class="text-muted mb-4">View and update student complaints.</p>
+                        <!-- Complaint Statistics and Table Unified -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="card text-center p-3 animate__animated animate__fadeInLeft">
+                                    <div class="fs-4 fw-bold text-primary" id="totalComplaintsCount">0</div>
+                                    <p class="text-muted mb-1">Total Complaints</p>
+                                    <p class="text-success text-sm">+12% this month</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center p-3 animate__animated animate__fadeInLeft" style="animation-delay: 0.1s;">
+                                    <div class="fs-4 fw-bold text-warning" id="pendingComplaintsCount">0</div>
+                                    <p class="text-muted mb-1">Pending</p>
+                                    <p class="text-warning text-sm">Needs attention</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center p-3 animate__animated animate__fadeInLeft" style="animation-delay: 0.2s;">
+                                    <div class="fs-4 fw-bold text-info" id="inProgressComplaintsCount">0</div>
+                                    <p class="text-muted mb-1">In Progress</p>
+                                    <p class="text-info text-sm">Being resolved</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center p-3 animate__animated animate__fadeInLeft" style="animation-delay: 0.3s;">
+                                    <div class="fs-4 fw-bold text-success" id="resolvedComplaintsCount">0</div>
+                                    <p class="text-muted mb-1">Resolved</p>
+                                    <p class="text-success text-sm">Completed</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Complaints Table -->
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">Recent Complaints <span class="badge bg-danger ms-2">Live Updates</span></h5>
+                                <div class="d-flex">
+                                    <input type="text" class="form-control form-control-sm me-2" id="searchComplaints" placeholder="Search complaints...">
+                                    <select class="form-select form-select-sm me-2" id="filterStatus">
+                                        <option value="">All Status</option>
+                                        <option value="Open">Open</option>
+                                        <option value="In Progress">In Progress</option>
+                                        <option value="Resolved">Resolved</option>
+                                    </select>
+                                    <button onclick="fetchComplaints()" class="btn btn-primary btn-sm"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                                </div>
+                            </div>
+                            <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Complaint ID</th>
+                            <th>Student</th>
+                            <th>Description</th>
+                                        <th>Room</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                                <tbody id="complaintsTableBody">
+                                    <tr>
+                                        <td colspan="7" class="text-center">Loading complaints...</td>
+                                    </tr>
+                                </tbody>
+                </table>
+                            <!-- Pagination (optional, depending on backend) -->
+                            <nav aria-label="Complaints pagination">
+                                <ul class="pagination justify-content-end">
+                                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+            </div>
+
+            <!-- Mark Attendance -->
+            <div class="tab-pane fade" id="attendance" role="tabpanel" aria-labelledby="attendance-tab">
+                    <div class="card">
+                <h4>Mark Attendance</h4>
+                        <p class="text-muted mb-4">Record student attendance.</p>
+                        <div class="form-group">
+                            <input type="number" class="form-control" id="attendanceStudentId" placeholder=" " required>
+                    <label for="attendanceStudentId" class="form-label">Student ID</label>
+                </div>
+                        <div class="form-group">
+                            <input type="date" class="form-control" id="attendanceDate" placeholder=" " required>
+                    <label for="attendanceDate" class="form-label">Date</label>
+                </div>
+                        <div class="form-group">
+                            <select class="form-select" id="attendanceStatus" required aria-label="Select Attendance Status">
+                        <option value="Present">Present</option>
+                        <option value="Absent">Absent</option>
+                    </select>
+                            <label for="attendanceStatus" class="form-label">Status</label>
+                </div>
+                        <div class="d-flex align-items-center">
+                <button onclick="markAttendance()" class="gradient-btn"><i class="fas fa-check me-2"></i>Mark Attendance</button>
+                            <div id="attendanceSpinner" class="spinner"></div>
+                        </div>
+                        <div id="attendanceMessage" class="mt-3" aria-live="polite"></div>
+                    </div>
+            </div>
+
+            <!-- Add Student -->
+            <div class="tab-pane fade" id="add-student" role="tabpanel" aria-labelledby="add-student-tab">
+                    <div class="card">
+                <h4>Add Student</h4>
+                        <p class="text-muted mb-4">Register a new student to the hostel.</p>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="firstName" placeholder=" " required>
+                    <label for="firstName" class="form-label">First Name</label>
+                </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="lastName" placeholder=" " required>
+                    <label for="lastName" class="form-label">Last Name</label>
+                </div>
+                        <div class="form-group">
+                            <input type="email" class="form-control" id="studentEmail" placeholder=" " required>
+                    <label for="studentEmail" class="form-label">Email</label>
+                </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="phone" placeholder=" " required>
+                    <label for="phone" class="form-label">Phone</label>
+                </div>
+                        <div class="form-group">
+                            <input type="number" class="form-control" id="roomId" placeholder=" " required>
+                    <label for="roomId" class="form-label">Room ID</label>
+                </div>
+                        <div class="form-group">
+                            <input type="date" class="form-control" id="admissionDate" placeholder=" " required>
+                    <label for="admissionDate" class="form-label">Admission Date</label>
+                </div>
+                        <div class="d-flex align-items-center">
+                <button onclick="addStudent()" class="success-btn"><i class="fas fa-user-plus me-2"></i>Add Student</button>
+                            <div id="studentSpinner" class="spinner"></div>
+                        </div>
+                        <div id="studentMessage" class="mt-3" aria-live="polite"></div>
+                    </div>
+            </div>
+
+            <!-- Available Rooms -->
+            <div class="tab-pane fade" id="rooms" role="tabpanel" aria-labelledby="rooms-tab">
+                    <div class="card">
+                <h4>Available Rooms</h4>
+                        <p class="text-muted mb-4">View available hostel rooms.</p>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Room Number</th>
+                            <th>Hostel Name</th>
+                            <th>Location</th>
+                            <th>Capacity</th>
+                        </tr>
+                    </thead>
+                            <tbody id="roomsTableBody">
+                                <tr>
+                                    <td colspan="4" class="text-center">No available rooms at the moment.</td>
+                                </tr>
+                    </tbody>
+                </table>
+                        <div class="d-flex align-items-center">
+                            <button onclick="fetchRooms()" class="gradient-btn"><i class="fas fa-sync-alt me-2"></i>Refresh Rooms</button>
+                            <div id="roomsSpinner" class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Students -->
+                <div class="tab-pane fade" id="total-students" role="tabpanel" aria-labelledby="total-students-tab">
+                    <div class="card">
+                        <h4>Total Students</h4>
+                        <p class="text-muted mb-4">View all registered students.</p>
+                        <div class="total-students-card">
+                            <h3>Total Students: <span id="totalStudentsCount">0</span></h3>
+                        </div>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Email</th>
+                                    <th>Room ID</th>
+                                    <th>Admission Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody"></tbody>
+                        </table>
+                        <div class="d-flex align-items-center">
+                            <button onclick="fetchStudents()" class="gradient-btn"><i class="fas fa-sync-alt me-2"></i>Refresh Students</button>
+                            <div id="studentsSpinner" class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Student -->
+                <div class="tab-pane fade" id="search-student" role="tabpanel" aria-labelledby="search-student-tab">
+                    <div class="card">
+                        <h4>Search Student</h4>
+                        <p class="text-muted mb-4">Find a student by ID or email.</p>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="searchQuery" placeholder=" " required>
+                            <label for="searchQuery" class="form-label">Student ID or Email</label>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <button onclick="searchStudent()" class="gradient-btn"><i class="fas fa-search me-2"></i>Search</button>
+                            <div id="searchSpinner" class="spinner"></div>
+                        </div>
+                        <div id="searchResult" class="mt-3" aria-live="polite"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaint Details Modal -->
+    <div class="modal fade" id="complaintDetailsModal" tabindex="-1" aria-labelledby="complaintDetailsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="complaintDetailsModalLabel">Complaint Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div><strong>Complaint ID:</strong> <span id="modalComplaintId"></span></div>
+            <div><strong>Student:</strong> <span id="modalStudent"></span></div>
+            <div><strong>Description:</strong> <span id="modalDescription"></span></div>
+            <div><strong>Room:</strong> <span id="modalRoom"></span></div>
+            <div><strong>Date:</strong> <span id="modalDate"></span></div>
+            <div><strong>Status:</strong> <span id="modalStatus"></span></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simulated notifications
+        let notifications = [
+            { id: 1, message: 'Complaint #123 pending review', date: '2025-05-13' },
+            { id: 2, message: 'Complaint #124 updated', date: '2025-05-12' }
+        ];
+
+        // Utility to show/hide spinner
+        function toggleSpinner(spinnerId, show) {
+            const spinner = document.getElementById(spinnerId);
+            spinner.style.display = show ? 'block' : 'none';
+        }
+
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+
+        // Toggle Theme
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            body.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+            const icon = document.querySelector('.theme-toggle i');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+        }
+
+        // Update Notifications
+        function updateNotifications() {
+            const badge = document.getElementById('complaintBadge');
+            badge.textContent = notifications.length;
+            const notificationList = document.getElementById('notificationList');
+            notificationList.innerHTML = notifications.length ?
+                notifications.map(n => `<div class="notification-item">${n.message} (${n.date})</div>`).join('') :
+                '<div class="notification-item">No new notifications</div>';
+        }
+
+        // Toggle Notification Panel
+        function toggleNotificationPanel() {
+            const panel = document.getElementById('notificationPanel');
+            panel.classList.toggle('show');
+        }
+
+        // Validate Input
+        function validateInput(input) {
+            if (!input.value.trim()) {
+                input.classList.add('is-invalid');
+                return false;
+            } else {
+                input.classList.remove('is-invalid');
+                return true;
+            }
+        }
+
+        // Add validation listeners
+        function addValidationListeners(formId) {
+            const inputs = document.querySelectorAll(`#${formId} .form-control, #${formId} .form-select`);
+            inputs.forEach(input => {
+                input.addEventListener('blur', () => validateInput(input));
+                input.addEventListener('input', () => validateInput(input));
+            });
+        }
+
+        // Fetch Complaints
+        async function fetchComplaints() {
+            toggleSpinner('complaintsSpinner', true);
+            document.querySelector('#complaints .btn-primary').disabled = true;
+            try {
+                const response = await fetch('/api/complaints');
+                const complaints = await response.json();
+                // Calculate statistics
+                const total = complaints.length;
+                const pending = complaints.filter(c => c.status === 'Open').length;
+                const inProgress = complaints.filter(c => c.status === 'In Progress').length;
+                const resolved = complaints.filter(c => c.status === 'Resolved').length;
+
+                // Update statistics cards
+                document.getElementById('totalComplaintsCount').textContent = total;
+                document.getElementById('pendingComplaintsCount').textContent = pending;
+                document.getElementById('inProgressComplaintsCount').textContent = inProgress;
+                document.getElementById('resolvedComplaintsCount').textContent = resolved;
+
+                const tbody = document.getElementById('complaintsTableBody');
+                tbody.innerHTML = '';
+                if (complaints.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center">No complaints found.</td></tr>';
+                    return;
+                }
+                complaints.forEach(complaint => {
+                    // Generate student initials circle
+                    const initials = (complaint.first_name ? complaint.first_name[0] : '') + (complaint.last_name ? complaint.last_name[0] : '');
+                    const studentDisplay = `
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px; font-size: 0.8rem;">${initials.toUpperCase()}</div>
+                            <div>
+                                <div>${complaint.first_name} ${complaint.last_name}</div>
+                                <div class="text-muted text-sm">ID: ${complaint.student_id}</div>
+                            </div>
+                        </div>`;
+
+                    // Determine status badge color
+                    let statusColor = 'secondary';
+                    if (complaint.status === 'Resolved') statusColor = 'success';
+                    else if (complaint.status === 'In Progress') statusColor = 'info';
+                    else if (complaint.status === 'Open') statusColor = 'danger';
+
+                    const row = `
+                        <tr>
+                            <td>${complaint.complaint_id}</td>
+                            <td>${studentDisplay}</td>
+                            <td>${complaint.description}</td>
+                            <td>${complaint.room_id || 'N/A'}</td>
+                            <td>${complaint.complaint_date}</td>
+                            <td><span class="badge bg-${statusColor}">${complaint.status}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1" title="View Details" onclick='showComplaintDetails(${JSON.stringify(complaint)})'><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-sm btn-outline-secondary me-1" title="Edit Complaint"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" title="Delete Complaint"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>`;
+                    tbody.innerHTML += row;
+                });
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center">Error loading complaints: ${error.message}</td></tr>`;
+                 // Reset statistics cards on error
+                document.getElementById('totalComplaintsCount').textContent = 'N/A';
+                document.getElementById('pendingComplaintsCount').textContent = 'N/A';
+                document.getElementById('inProgressComplaintsCount').textContent = 'N/A';
+                document.getElementById('resolvedComplaintsCount').textContent = 'N/A';
+            } finally {
+                toggleSpinner('complaintsSpinner', false);
+                document.querySelector('#complaints .btn-primary').disabled = false;
+            }
+        }
+
+        // Update Complaint Status (keep as is for now, adjust if backend requires room_id for update)
+        async function updateComplaintStatus(complaintId, status) {
+            try {
+                const response = await fetch(`/api/complaints/${complaintId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                const result = await response.json();
+                // Display a temporary success message
+                const successMessage = `<div class="alert alert-success alert-dismissible fade show animate__animated animate__fadeIn" role="alert">${result.message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
+                document.querySelector('#complaints .card').insertAdjacentHTML('afterbegin', successMessage);
+                // Automatically remove the alert after 5 seconds
+                setTimeout(() => {
+                    const alert = document.querySelector('.alert.show');
+                    if (alert) {
+                        alert.classList.remove('show');
+                        alert.classList.add('fadeOut'); // Assuming you have a fadeOut animation
+                        alert.addEventListener('animationend', () => alert.remove());
+                    }
+                }, 5000);
+
+                fetchComplaints(); // Refresh the table
+            } catch (error) {
+                 const errorMessage = `<div class="alert alert-danger alert-dismissible fade show animate__animated animate__fadeIn" role="alert">Error updating complaint status: ${error.message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
+                 document.querySelector('#complaints .card').insertAdjacentHTML('afterbegin', errorMessage);
+                 setTimeout(() => {
+                    const alert = document.querySelector('.alert.show');
+                    if (alert) {
+                        alert.classList.remove('show');
+                         alert.classList.add('fadeOut');
+                         alert.addEventListener('animationend', () => alert.remove());
+                    }
+                }, 5000);
+            }
+        }
+
+        // Mark Attendance
+        async function markAttendance() {
+            const studentId = document.getElementById('attendanceStudentId');
+            const date = document.getElementById('attendanceDate');
+            const status = document.getElementById('attendanceStatus');
+            if (!validateInput(studentId) || !validateInput(date) || !validateInput(status)) {
+                document.getElementById('attendanceMessage').innerHTML = `<div class="alert alert-warning animate__animated animate__fadeIn">Please fill in all fields.</div>`;
+                return;
+            }
+            toggleSpinner('attendanceSpinner', true);
+            document.querySelector('#attendance .gradient-btn').disabled = true;
+            try {
+                const response = await fetch('/api/attendance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_id: studentId.value, date: date.value, status: status.value })
+                });
+                const result = await response.json();
+                document.getElementById('attendanceMessage').innerHTML = `<div class="alert alert-success animate__animated animate__fadeIn">${result.message}</div>`;
+                studentId.value = '';
+                date.value = '';
+                status.value = 'Present';
+            } catch (error) {
+                document.getElementById('attendanceMessage').innerHTML = `<div class="alert alert-danger animate__animated animate__fadeIn">Error: ${error.message}</div>`;
+            } finally {
+                toggleSpinner('attendanceSpinner', false);
+                document.querySelector('#attendance .gradient-btn').disabled = false;
+            }
+        }
+
+        // Add Student
+        async function addStudent() {
+            const firstName = document.getElementById('firstName');
+            const lastName = document.getElementById('lastName');
+            const email = document.getElementById('studentEmail');
+            const phone = document.getElementById('phone');
+            const roomId = document.getElementById('roomId');
+            const admissionDate = document.getElementById('admissionDate');
+            if (!validateInput(firstName) || !validateInput(lastName) || !validateInput(email) || !validateInput(phone) || !validateInput(roomId) || !validateInput(admissionDate)) {
+                document.getElementById('studentMessage').innerHTML = `<div class="alert alert-warning animate__animated animate__fadeIn">Please fill in all fields.</div>`;
+                return;
+            }
+            toggleSpinner('studentSpinner', true);
+            document.querySelector('#add-student .success-btn').disabled = true;
+            try {
+                const response = await fetch('/api/students', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        first_name: firstName.value,
+                        last_name: lastName.value,
+                        email: email.value,
+                        phone: phone.value,
+                        room_id: roomId.value,
+                        admission_date: admissionDate.value
+                    })
+                });
+                const result = await response.json();
+                document.getElementById('studentMessage').innerHTML = `<div class="alert alert-success animate__animated animate__fadeIn">${result.message}</div>`;
+                firstName.value = '';
+                lastName.value = '';
+                email.value = '';
+                phone.value = '';
+                roomId.value = '';
+                admissionDate.value = '';
+            } catch (error) {
+                document.getElementById('studentMessage').innerHTML = `<div class="alert alert-danger animate__animated animate__fadeIn">Error: ${error.message}</div>`;
+            } finally {
+                toggleSpinner('studentSpinner', false);
+                document.querySelector('#add-student .success-btn').disabled = false;
+            }
+        }
+
+        // Fetch Rooms
+        async function fetchRooms() {
+            toggleSpinner('roomsSpinner', true);
+            document.querySelector('#rooms .gradient-btn').disabled = true;
+            try {
+                const rooms = [
+                    { room_number: '101', hostel_name: 'Main Hostel', location: 'Building A', capacity: 2 },
+                    { room_number: '102', hostel_name: 'Main Hostel', location: 'Building A', capacity: 3 },
+                    { room_number: '201', hostel_name: 'West Hostel', location: 'Building B', capacity: 2 }
+                ];
+                const tbody = document.getElementById('roomsTableBody');
+                tbody.innerHTML = '';
+                if (rooms.length > 0) {
+                    rooms.forEach(room => {
+                        const row = `
+                            <tr>
+                                <td>${room.room_number}</td>
+                                <td>${room.hostel_name}</td>
+                                <td>${room.location}</td>
+                                <td>${room.capacity}</td>
+                            </tr>`;
+                        tbody.innerHTML += row;
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-center">No available rooms at the moment.</td></tr>`;
+                }
+            } catch (error) {
+                document.getElementById('roomsTableBody').innerHTML = `<tr><td colspan="4">Error: ${error.message}</td></tr>`;
+            } finally {
+                toggleSpinner('roomsSpinner', false);
+                document.querySelector('#rooms .gradient-btn').disabled = false;
+            }
+        }
+
+        // Fetch Total Students
+        async function fetchStudents() {
+            toggleSpinner('studentsSpinner', true);
+            document.querySelector('#total-students .gradient-btn').disabled = true;
+            try {
+                const students = [
+                    { student_id: 1, first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com', phone: '1234567890', room_id: 101, admission_date: '2025-01-01' },
+                    { student_id: 2, first_name: 'Jane', last_name: 'Smith', email: 'jane.smith@example.com', phone: '0987654321', room_id: 102, admission_date: '2025-02-01' },
+                    { student_id: 3, first_name: 'Alice', last_name: 'Johnson', email: 'alice.johnson@example.com', phone: '1122334455', room_id: 103, admission_date: '2025-03-01' }
+                ];
+                const tbody = document.getElementById('studentsTableBody');
+                tbody.innerHTML = '';
+                students.forEach(student => {
+                    const row = `
+                        <tr>
+                            <td>${student.student_id}</td>
+                            <td>${student.first_name}</td>
+                            <td>${student.last_name}</td>
+                            <td>${student.email}</td>
+                            <td>${student.room_id}</td>
+                            <td>${student.admission_date}</td>
+                        </tr>`;
+                    tbody.innerHTML += row;
+                });
+                document.getElementById('totalStudentsCount').textContent = students.length;
+            } catch (error) {
+                document.getElementById('studentsTableBody').innerHTML = `<tr><td colspan="6">Error: ${error.message}</td></tr>`;
+            } finally {
+                toggleSpinner('studentsSpinner', false);
+                document.querySelector('#total-students .gradient-btn').disabled = false;
+            }
+        }
+
+        // Search Student
+        async function searchStudent() {
+            const query = document.getElementById('searchQuery');
+            if (!validateInput(query)) {
+                document.getElementById('searchResult').innerHTML = `<div class="alert alert-warning animate__animated animate__fadeIn">Please enter a Student ID or Email.</div>`;
+                return;
+            }
+            toggleSpinner('searchSpinner', true);
+            document.querySelector('#search-student .gradient-btn').disabled = true;
+            try {
+                const students = [
+                    { student_id: 1, first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com', phone: '1234567890', room_id: 101, admission_date: '2025-01-01' },
+                    { student_id: 2, first_name: 'Jane', last_name: 'Smith', email: 'jane.smith@example.com', phone: '0987654321', room_id: 102, admission_date: '2025-02-01' },
+                    { student_id: 3, first_name: 'Alice', last_name: 'Johnson', email: 'alice.johnson@example.com', phone: '1122334455', room_id: 103, admission_date: '2025-03-01' }
+                ];
+                const student = students.find(s => s.student_id.toString() === query.value || s.email.toLowerCase() === query.value.toLowerCase());
+                const searchResult = document.getElementById('searchResult');
+                if (student) {
+                    searchResult.innerHTML = `
+                        <div class="search-result-card">
+                            <h5>Student Details</h5>
+                            <p><strong>Student ID:</strong> ${student.student_id}</p>
+                            <p><strong>First Name:</strong> ${student.first_name}</p>
+                            <p><strong>Last Name:</strong> ${student.last_name}</p>
+                            <p><strong>Email:</strong> ${student.email}</p>
+                            <p><strong>Phone:</strong> ${student.phone}</p>
+                            <p><strong>Room ID:</strong> ${student.room_id}</p>
+                            <p><strong>Admission Date:</strong> ${student.admission_date}</p>
+                        </div>`;
+                } else {
+                    searchResult.innerHTML = `<div class="alert alert-danger animate__animated animate__fadeIn">No student found with ID or Email: ${query.value}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('searchResult').innerHTML = `<div class="alert alert-danger animate__animated animate__fadeIn">Error: ${error.message}</div>`;
+            } finally {
+                toggleSpinner('searchSpinner', false);
+                document.querySelector('#search-student .gradient-btn').disabled = false;
+            }
+        }
+
+        // Update the complaints table to add view details functionality
+        function showComplaintDetails(complaint) {
+            document.getElementById('modalComplaintId').textContent = complaint.complaint_id;
+            document.getElementById('modalStudent').textContent = `${complaint.first_name} ${complaint.last_name} (ID: ${complaint.student_id})`;
+            document.getElementById('modalDescription').textContent = complaint.description;
+            document.getElementById('modalRoom').textContent = complaint.room_id || 'N/A';
+            document.getElementById('modalDate').textContent = complaint.complaint_date;
+            document.getElementById('modalStatus').textContent = complaint.status;
+            var modal = new bootstrap.Modal(document.getElementById('complaintDetailsModal'));
+            modal.show();
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add validation listeners
+            ['attendance', 'add-student', 'search-student'].forEach(formId => addValidationListeners(formId));
+
+            // Initialize notifications
+            updateNotifications();
+            document.getElementById('complaintBadge').addEventListener('click', toggleNotificationPanel);
+
+            // Fetch initial data for other tabs that might be default active or needed immediately
+            // fetchComplaints(); // Remove initial fetch for complaints
+            fetchStudents();
+            fetchRooms();
+
+            // Hide loading overlay after 1 second
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }, 1000);
+
+            // Add event listener to fetch complaints when the tab is shown
+            const complaintsTabPane = document.getElementById('complaints');
+            if (complaintsTabPane) {
+                complaintsTabPane.addEventListener('shown.bs.tab', function () {
+                    fetchComplaints();
+                });
+            }
+
+             // Fetch complaints if the complaints tab is the active one on load
+             if(document.getElementById('complaints-tab').classList.contains('active')) {
+            fetchComplaints();
+             }
+        });
+    </script>
+</body>
+</html>

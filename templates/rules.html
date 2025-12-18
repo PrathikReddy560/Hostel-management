@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOSTEL HUB</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #1a1a2e;
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+                url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+            z-index: -1;
+            opacity: 0.8;
+        }
+        .main-container {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 30px;
+            width: 95%;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .info-container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: slideIn 1s ease-in-out;
+        }
+        .login-container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 20px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+        @keyframes slideIn {
+            0% { opacity: 0; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); }
+            100% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); }
+        }
+        .logo {
+            max-width: 80px;
+            margin-bottom: 15px;
+            transition: transform 0.5s ease;
+        }
+        .logo:hover {
+            transform: scale(1.1);
+        }
+        .info-title, .login-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .carousel-inner img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+        .carousel-control-prev, .carousel-control-next {
+            filter: invert(1);
+        }
+        .info-content {
+            color: #e0e0e0;
+            line-height: 1.7;
+        }
+        .accordion-button {
+            background: #16213e;
+            color: #00ffff;
+            font-weight: 500;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .accordion-button:not(.collapsed) {
+            background: #0f3460;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        .accordion-button:focus {
+            box-shadow: none;
+            border: none;
+        }
+        .accordion-body {
+            background: #1a1a2e;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        .testimonial-card {
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        .testimonial-card p {
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+        .testimonial-card small {
+            color: #00ffff;
+        }
+        .quick-links a {
+            display: flex;
+            align-items: center;
+            color: #00ffff;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .quick-links a i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        .quick-links a:hover {
+            background: rgba(0, 255, 255, 0.3);
+            transform: translateX(5px);
+        }
+        .announcements {
+            background: rgba(255, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .announcements ul {
+            padding-left: 20px;
+        }
+        .nav-tabs {
+            border-bottom: none;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .nav-link {
+            color: #e0e0e0;
+            font-weight: 500;
+            padding: 8px 15px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 8px;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        .nav-link:hover {
+            background: rgba(0, 255, 255, 0.3);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+        .nav-link.active {
+            background: #00ffff;
+            color: #1a1a2e;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        .gradient-btn {
+            background: linear-gradient(45deg, #00ffff, #00b7eb);
+            border: none;
+            padding: 10px 20px;
+            font-weight: 600;
+            color: #1a1a2e;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .gradient-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.5);
+        }
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #00ffff;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+            color: #fff;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #00ffff;
+        }
+        .alert {
+            margin-top: 10px;
+            border-radius: 8px;
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff9999;
+        }
+        .forgot-password {
+            color: #00ffff;
+            font-size: 0.85rem;
+            text-align: center;
+            display: block;
+            margin-top: 10px;
+            text-decoration: none;
+        }
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+        .top-nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .top-nav a {
+            color: #00ffff;
+            font-weight: 500;
+            padding: 8px 15px;
+            margin-left: 10px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        .top-nav a:hover {
+            background: rgba(0, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        .login-context {
+            color: #e0e0e0;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .quick-links-toggle {
+            display: none;
+            background: #00ffff;
+            color: #1a1a2e;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 992px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            .login-container {
+                position: static;
+                max-width: 500px;
+                margin: 0 auto;
+            }
+            .carousel-inner img {
+                max-height: 250px;
+            }
+            .quick-links-toggle {
+                display: block;
+            }
+            .quick-links {
+                display: none;
+            }
+            .quick-links.show {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+    </div>
+    <div class="main-container">
+        <!-- Hostel Information Section -->
+        <div class="info-container">
+            <h2 class="info-title">HOSTEL HUB</h2>
+            <!-- Image Carousel -->
+            <div id="hostelCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="https://th.bing.com/th/id/OIP.B5iTJUt7g5Qdgi2pBgW6ugHaFO?w=271&h=191&c=7&r=0&o=5&dpr=1.3&pid=1.7" alt="Hostel Campus" class="d-block w-100">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://th.bing.com/th/id/OIP.fJm6QvBljPsbNpdayzBxjQHaE7?rs=1&pid=ImgDetMain" alt="Hostel Room" class="d-block w-100">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://th.bing.com/th/id/R.71a6e69c837f46fda046d9b460177634?rik=zSps8kR9MHEl6g&riu=http%3a%2f%2fnitte.edu.in%2fimg%2ffacilities%2fhostels%2fb%2f1.jpg&ehk=YkkDvTpVxYNBx0cXCSo1qdeXZtDiFg0qnwv%2bSU9wPnI%3d&risl=&pid=ImgRaw&r=0" alt="Cafeteria" class="d-block w-100">
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#hostelCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#hostelCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+            <div class="info-content">
+                <div class="accordion" id="hostelInfoAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#overview" aria-expanded="true" aria-controls="overview">
+                                About Hosetl Hub
+                            </button>
+                        </h2>
+                        <div id="overview" class="accordion-collapse collapse show" data-bs-parent="#hostelInfoAccordion">
+                            <div class="accordion-body">
+                                Hostel Hub is a state-of-the-art hostel management system designed to enhance student living. Our platform integrates advanced technology with user-centric design to provide a seamless, secure, and community-driven experience for students and wardens.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#system" aria-expanded="false" aria-controls="system">
+                                Management System Features
+                            </button>
+                        </h2>
+                        <div id="system" class="accordion-collapse collapse" data-bs-parent="#hostelInfoAccordion">
+                            <div class="accordion-body">
+                                Our system offers robust features:
+                                <ul>
+                                    <li><strong>Student Portal</strong>: Manage room assignments, submit maintenance or complaint requests, view meal schedules, and communicate with wardens.</li>
+                                    <li><strong>Warden Dashboard</strong>: Oversee attendance, allocate rooms, track issues, and generate detailed reports.</li>
+                                    <li><strong>Real-Time Notifications</strong>: Stay updated with instant alerts for announcements, events, or schedule changes.</li>
+                                    <li><strong>Secure Authentication</strong>: Role-based access with encrypted credentials ensures data privacy.</li>
+                                    <li><strong>Payment Integration</strong>: Pay hostel fees or fines securely through the portal.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#facilities" aria-expanded="false" aria-controls="facilities">
+                                Facilities
+                            </button>
+                        </h2>
+                        <div id="facilities" class="accordion-collapse collapse" data-bs-parent="#hostelInfoAccordion">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li>Spacious rooms with ergonomic desks, beds, and storage</li>
+                                    <li>Gigabit Wi-Fi and dedicated study lounges</li>
+                                    <li>24/7 security with biometric access and CCTV</li>
+                                    <li>Gourmet cafeteria with vegan and gluten-free options</li>
+                                    <li>Fitness center, library, gaming lounge, and outdoor sports facilities</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#rules" aria-expanded="false" aria-controls="rules">
+                                Hostel Rules
+                            </button>
+                        </h2>
+                        <div id="rules" class="accordion-collapse collapse" data-bs-parent="#hostelInfoAccordion">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li>Respect quiet hours (10 PM - 6 AM).</li>
+                                    <li>No smoking, alcohol, or unauthorized guests.</li>
+                                    <li>Maintain cleanliness in shared spaces.</li>
+                                    <li>Adhere to dining hall schedules and etiquette.</li>
+                                    <li>Report damages or issues promptly via the portal.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#contact" aria-expanded="false" aria-controls="contact">
+                                Contact Us
+                            </button>
+                        </h2>
+                        <div id="contact" class="accordion-collapse collapse" data-bs-parent="#hostelInfoAccordion">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li>Email: info@explorerabode.com</li>
+                                    <li>Phone: +1 (987) 654-3210</li>
+                                    <li>Address: 456 Campus Drive, Academic City, CA 67890</li>
+                                    <li>Office Hours: Mon-sat, 9 AM - 5 PM</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Testimonials -->
+                <h3 class="mt-4">What Our Community Says</h3>
+                <div class="testimonial-card">
+                    <p>"Hosetl Hub made my hostel experience amazing! The portal is so easy to use for booking rooms and reporting issues." </p>
+                    <small>- Sarah K., Student</small>
+                </div>
+                <div class="testimonial-card">
+                    <p>"Managing the hostel is a breeze with the warden dashboard. It saves time and keeps everything organized." </p>
+                    <small>- Mr. John., Warden</small>
+                </div>
+                <!-- Quick Links -->
+                <!-- 
+                    To customize Quick Links:
+                    1. Add or remove <a> tags below.
+                    2. Update href attribute with the desired URL.
+                    3. Change the text content for the link title.
+                    4. Modify data-bs-title for the tooltip description.
+                    5. Update the Font Awesome icon class (e.g., fa-home) to match the link's purpose.
+                -->
+                
+                <!-- Announcements -->
+                <h3 class="mt-4">Latest Announcements</h3>
+                <div class="announcements">
+                    <ul>
+                        <li>Room allocation for Fall 2025 starts June 1.</li>
+                        <li>Cafeteria menu updated with new vegan options.</li>
+                        <li>Wi-Fi maintenance scheduled for May 15, 24x7 .</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Section -->
+        <div class="login-container">
+            <div class="text-center">
+                <img src="" alt="" class="logo">
+                <h2 class="login-title">HOSTEL HUB</h2>
+            </div>
+            <p class="login-context">Log in to access your personalized dashboard. Students: manage rooms, meals, and requests. Wardens: oversee operations and reports.</p>
+
+            <!-- Tabs for Role Selection -->
+            <ul class="nav nav-tabs mb-4" id="loginTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="student-tab" data-bs-toggle="tab" data-bs-target="#student" type="button" role="tab" aria-controls="student" aria-selected="true">Student</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="warden-tab" data-bs-toggle="tab" data-bs-target="#warden" type="button" role="tab" aria-controls="warden" aria-selected="false">Warden</button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="loginTabContent">
+                <!-- Student Login -->
+                <div class="tab-pane fade show active" id="student" role="tabpanel" aria-labelledby="student-tab">
+                    <form method="POST" action="/login">
+                        <input type="hidden" name="role" value="student">
+                        <div class="mb-3">
+                            <label for="studentEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="studentEmail" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="studentPassword" name="password" required>
+                        </div>
+                        <button type="submit" class="gradient-btn"><i class="fas fa-sign-in-alt me-2"></i>Login as Student</button>
+                        <a href="/forgot-password" class="forgot-password">Forgot Password?</a>
+                    </form>
+                </div>
+
+                <!-- Warden Login -->
+                <div class="tab-pane fade" id="warden" role="tabpanel" aria-labelledby="warden-tab">
+                    <form method="POST" action="/login">
+                        <input type="hidden" name="role" value="warden">
+                        <div class="mb-3">
+                            <label for="wardenEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="wardenEmail" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="wardenPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="wardenPassword" name="password" required>
+                        </div>
+                        <button type="submit" class="gradient-btn"><i class="fas fa-sign-in-alt me-2"></i>Login as Warden</button>
+                        <a href="/forgot-password" class="forgot-password">Forgot Password?</a>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            {% if error %}
+                <div class="alert alert-danger text-center">{{ error }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize Bootstrap tooltips
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"] 3.0');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+    </script>
+</body>
+</html>

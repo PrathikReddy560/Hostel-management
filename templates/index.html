@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HostelHub - Student Dashboard</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#4f46e5", secondary: "#f97316" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f9fafb;
+      }
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      .custom-checkbox {
+        position: relative;
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        border: 2px solid #d1d5db;
+        background-color: white;
+        cursor: pointer;
+      }
+      .custom-checkbox.checked {
+        background-color: #4f46e5;
+        border-color: #4f46e5;
+      }
+      .custom-checkbox.checked::after {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 6px;
+        width: 6px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+      .custom-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+      }
+      .custom-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #e5e7eb;
+        transition: .3s;
+        border-radius: 24px;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+      }
+      input:checked + .slider {
+        background-color: #4f46e5;
+      }
+      input:checked + .slider:before {
+        transform: translateX(20px);
+      }
+      .custom-radio {
+        position: relative;
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid #d1d5db;
+        background-color: white;
+        cursor: pointer;
+      }
+      .custom-radio.checked {
+        border-color: #4f46e5;
+      }
+      .custom-radio.checked::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #4f46e5;
+      }
+      .custom-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 6px;
+        border-radius: 5px;
+        background: #e5e7eb;
+        outline: none;
+      }
+      .custom-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #4f46e5;
+        cursor: pointer;
+      }
+      .custom-range::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #4f46e5;
+        cursor: pointer;
+        border: none;
+      }
+      .dropdown {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        z-index: 50;
+      }
+      .dropdown.active {
+        display: block;
+      }
+      .restaurant-scroll::-webkit-scrollbar {
+        height: 6px;
+      }
+      .restaurant-scroll::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .restaurant-scroll::-webkit-scrollbar-thumb {
+        background: #c7c7c7;
+        border-radius: 10px;
+      }
+      .restaurant-scroll::-webkit-scrollbar-thumb:hover {
+        background: #a0a0a0;
+      }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+      <div
+        class="container mx-auto px-4 py-4 flex justify-between items-center"
+      >
+        <div class="flex items-center">
+          <h1 class="text-2xl font-['Pacifico'] text-primary">HostelHub</h1>
+        </div>
+        <div class="flex items-center space-x-6">
+          <nav class="hidden md:flex space-x-6">
+            <a
+              href="#overview"
+              class="text-gray-700 hover:text-primary font-medium hover:underline hover:underline-offset-4 transition-all duration-300"
+              >Overview</a
+            >
+            <a
+              href="#amenities"
+              class="text-gray-700 hover:text-primary font-medium hover:underline hover:underline-offset-4 transition-all duration-300"
+              >Amenities</a
+            >
+            <a
+              href="#rules"
+              class="text-gray-700 hover:text-primary font-medium hover:underline hover:underline-offset-4 transition-all duration-300"
+              >Rules</a
+            >
+            <a
+              href="#restaurants"
+              class="text-gray-700 hover:text-primary font-medium hover:underline hover:underline-offset-4 transition-all duration-300"
+              >Restaurants</a
+            >
+            <a
+              href="#rooms"
+              class="text-gray-700 hover:text-primary font-medium hover:underline hover:underline-offset-4 transition-all duration-300"
+              >Rooms</a
+            >
+          </nav>
+          <a href="{{ url_for('login') }}" class="bg-primary text-white px-4 py-2 !rounded-button flex items-center whitespace-nowrap transition-transform transform hover:scale-105">
+            <span class="w-5 h-5 flex items-center justify-center mr-2">
+              <i class="ri-user-line"></i>
+            </span>
+            Login
+          </a>
+        </div>
+        </div>
+    </header>
+    <!-- Hero Section -->
+    <section id="overview" class="bg-white py-12">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col lg:flex-row gap-8 items-center">
+          <div class="lg:w-1/2">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">
+              HostelHub Student Hostel
+            </h2>
+            <div class="flex items-center mb-4">
+              <div class="flex text-yellow-400">
+                <span class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-star-fill"></i>
+                </span>
+                <span class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-star-fill"></i>
+                </span>
+                <span class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-star-fill"></i>
+                </span>
+                <span class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-star-fill"></i>
+                </span>
+                <span class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-star-half-line"></i>
+                </span>
+              </div>
+              <span class="ml-2 text-gray-600">4.5 (128 reviews)</span>
+            </div>
+            <p class="text-gray-600 mb-6">
+              Located just 5 minutes from campus, HostelHub Student Hostel
+              offers modern accommodation with all the amenities you need for a
+              comfortable student life. Our friendly staff and vibrant community
+              create the perfect environment for academic success and social
+              connections.
+            </p>
+            <div class="grid grid-cols-3 gap-4 mb-6">
+              <div class="bg-gray-50 p-4 rounded-lg text-center">
+                <div
+                  class="w-8 h-8 flex items-center justify-center mx-auto mb-2 text-primary"
+                >
+                  <i class="ri-home-4-line ri-lg"></i>
+                </div>
+                <h4 class="font-semibold text-gray-900">120</h4>
+                <p class="text-sm text-gray-500">Total Rooms</p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-lg text-center">
+                <div
+                  class="w-8 h-8 flex items-center justify-center mx-auto mb-2 text-green-500"
+                >
+                  <i class="ri-checkbox-circle-line ri-lg"></i>
+                </div>
+                <h4 class="font-semibold text-gray-900">28</h4>
+                <p class="text-sm text-gray-500">Available Rooms</p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-lg text-center">
+                <div
+                  class="w-8 h-8 flex items-center justify-center mx-auto mb-2 text-blue-500"
+                >
+                  <i class="ri-user-line ri-lg"></i>
+                </div>
+                <h4 class="font-semibold text-gray-900">240</h4>
+                <p class="text-sm text-gray-500">Student Capacity</p>
+              </div>
+            </div>
+            <div class="bg-blue-50 p-4 rounded-lg mb-6">
+              <div class="flex items-center mb-2">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-2 text-blue-600"
+                >
+                  <i class="ri-information-line"></i>
+                </div>
+                <h4 class="font-semibold text-gray-900">Current Occupancy</h4>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  class="bg-blue-600 h-2.5 rounded-full"
+                  style="width: 76%"
+                ></div>
+              </div>
+              <p class="text-sm text-gray-600 mt-2">
+                76% occupied (184/240 beds)
+              </p>
+            </div>
+            <div class="flex space-x-4">
+              <a
+                href="#rooms"
+                class="bg-primary text-white px-6 py-3 !rounded-button whitespace-nowrap transition-transform transform hover:scale-105"
+              >
+                View Rooms
+              </a>
+              <a
+                href="#contact"
+                class="bg-white border border-gray-300 text-gray-700 px-6 py-3 !rounded-button whitespace-nowrap transition-transform transform hover:scale-105"
+              >
+                Contact Hostel
+              </a>
+            </div>
+          </div>
+          <div class="lg:w-1/2">
+            <div class="rounded-xl overflow-hidden shadow-lg">
+              <img
+                src="https://readdy.ai/api/search-image?query=modern%20student%20hostel%20building%20exterior%20with%20large%20windows%2C%20clean%20architecture%2C%20welcoming%20entrance%2C%20green%20surroundings%2C%20sunny%20day%2C%20high%20quality%20professional%20photography&width=600&height=450&seq=1&orientation=landscape"
+                alt="HostelHub Student Hostel"
+                class="w-full h-full object-cover object-top"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Amenities Section -->
+    <section id="amenities" class="py-16 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">
+          Hostel Amenities
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div class="flex items-center mb-4">
+              <div
+                class="w-10 h-10 flex items-center justify-center bg-blue-100 rounded-full text-primary mr-3"
+              >
+                <i class="ri-wifi-line ri-lg"></i>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900">
+                High-Speed WiFi
+              </h3>
+            </div>
+            <p class="text-gray-600">
+              Fiber-optic internet with speeds up to 200 Mbps available
+              throughout the building. Perfect for online classes and streaming.
+            </p>
+            <div class="mt-4 flex items-center text-sm text-green-600">
+              <span class="w-4 h-4 flex items-center justify-center mr-1">
+                <i class="ri-check-line"></i>
+              </span>
+              <span>Working properly</span>
+            </div>
+          </div>
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div class="flex items-center mb-4">
+              <div
+                class="w-10 h-10 flex items-center justify-center bg-green-100 rounded-full text-green-600 mr-3"
+              >
+                <i class="ri-restaurant-line ri-lg"></i>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900">Dining Hall</h3>
+            </div>
+            <p class="text-gray-600">
+              Spacious dining area serving three meals daily with vegetarian and
+              non-vegetarian options. Special diet accommodations available.
+            </p>
+            <div class="mt-4 flex items-center text-sm text-green-600">
+              <span class="w-4 h-4 flex items-center justify-center mr-1">
+                <i class="ri-check-line"></i>
+              </span>
+              <span>Working properly</span>
+            </div>
+          </div>
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div class="flex items-center mb-4">
+              <div
+                class="w-10 h-10 flex items-center justify-center bg-purple-100 rounded-full text-purple-600 mr-3"
+              >
+                <i class="ri-24-hours-line ri-lg"></i>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900">24/7 Security</h3>
+            </div>
+            <p class="text-gray-600">
+              Round-the-clock security personnel, CCTV surveillance, and secure
+              access control system for your safety and peace of mind.
+            </p>
+            <div class="mt-4 flex items-center text-sm text-green-600">
+              <span class="w-4 h-4 flex items-center justify-center mr-1">
+                <i class="ri-check-line"></i>
+              </span>
+              <span>Working properly</span>
+            </div>
+          </div>
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div class="flex items-center mb-4">
+              <div
+                class="w-10 h-10 flex items-center justify-center bg-red-100 rounded-full text-red-600 mr-3"
+              >
+                <i class="ri-fitness-line ri-lg"></i>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900">
+                Fitness Center
+              </h3>
+            </div>
+            <p class="text-gray-600">
+              Well-equipped gym with cardio machines, free weights, and
+              dedicated space for yoga and stretching. Open from 6 AM to 10 PM.
+            </p>
+            <div class="mt-4 flex items-center text-sm text-green-600">
+              <span class="w-4 h-4 flex items-center justify-center mr-1">
+                <i class="ri-check-line"></i>
+              </span>
+              <span>Working properly</span>
+            </div>
+          </div>
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div class="flex items-center mb-4">
+              <div
+                class="w-10 h-10 flex items-center justify-center bg-yellow-100 rounded-full text-yellow-600 mr-3"
+              >
+                <i class="ri-book-open-line ri-lg"></i>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900">Study Rooms</h3>
+            </div>
+            <p class="text-gray-600">
+              Quiet study spaces on each floor with desks, power outlets, and
+              good lighting. Group study rooms available by reservation.
+            </p>
+            <div class="mt-4 flex items-center text-sm text-green-600">
+              <span class="w-4 h-4 flex items-center justify-center mr-1">
+                <i class="ri-check-line"></i>
+              </span>
+              <span>Working properly</span>
+            </div>
+          </div>
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div class="flex items-center mb-4">
+              <div
+                class="w-10 h-10 flex items-center justify-center bg-indigo-100 rounded-full text-indigo-600 mr-3"
+              >
+                <i class="ri-washing-machine-line ri-lg"></i>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900">
+                Laundry Facilities
+              </h3>
+            </div>
+            <p class="text-gray-600">
+              Self-service laundry room with energy-efficient washers and
+              dryers. Pay with app or card. Detergent vending available.
+            </p>
+            <div class="mt-4 flex items-center text-sm text-amber-600">
+              <span class="w-4 h-4 flex items-center justify-center mr-1">
+                <i class="ri-error-warning-line"></i>
+              </span>
+              <span>Maintenance scheduled (May 15-16)</span>
+            </div>
+            </div>
+        </div>
+      </div>
+    </section>
+    <!-- Hostel Rules Section -->
+    <section id="rules" class="py-16 bg-white">
+      <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">
+          Hostel Rules & Regulations
+        </h2>
+        <div class="bg-gray-50 rounded-xl p-8 shadow-sm">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-6">
+                General Rules
+              </h3>
+              <div class="space-y-4">
+                <div class="flex items-start">
+                  <div
+                    class="w-6 h-6 flex items-center justify-center text-primary mt-0.5 mr-3"
+                  >
+                    <i class="ri-time-line"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">Entry/Exit Timing</h4>
+                    <p class="text-gray-600 text-sm">
+                      Hostel gates close at 10:30 PM on weekdays and 11:30 PM on
+                      weekends. Late entry requires prior permission from the
+                      warden.
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div
+                    class="w-6 h-6 flex items-center justify-center text-primary mt-0.5 mr-3"
+                  >
+                    <i class="ri-user-follow-line"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">Visitor Policy</h4>
+                    <p class="text-gray-600 text-sm">
+                      Visitors allowed between 9 AM and 8 PM. All visitors must
+                      register at the reception. Overnight guests are not
+                      permitted.
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div
+                    class="w-6 h-6 flex items-center justify-center text-primary mt-0.5 mr-3"
+                  >
+                    <i class="ri-restaurant-line"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">Mess Timing</h4>
+                    <p class="text-gray-600 text-sm">
+                      Breakfast: 7-9 AM, Lunch: 12-2 PM, Dinner: 7-9 PM. No food
+                      will be served outside these hours except in case of
+                      illness.
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div
+                    class="w-6 h-6 flex items-center justify-center text-primary mt-0.5 mr-3"
+                  >
+                    <i class="ri-volume-mute-line"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">Quiet Hours</h4>
+                    <p class="text-gray-600 text-sm">
+                      Quiet hours are from 10 PM to 6 AM. Please be considerate
+                      of others who may be studying or sleeping.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-6">
+                Prohibited Items & Activities
+              </h3>
+              <div class="space-y-4">
+                <div class="flex items-start">
+                  <div
+                    class="w-6 h-6 flex items-center justify-center text-red-500 mt-0.5 mr-3"
+                  >
+                    <i class="ri-forbid-line"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">
+                      Strictly Prohibited
+                    </h4>
+                    <p class="text-gray-600 text-sm">
+                      Alcohol, smoking, drugs, and firearms are strictly
+                      prohibited on hostel premises. Violation will result in
+                      immediate expulsion.
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div
+                    class="w-6 h-6 flex items-center justify-center text-red-500 mt-0.5 mr-3"
+                  >
+                    <i class="ri-plug-line"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">
+                      Electrical Appliances
+                    </h4>
+                    <p class="text-gray-600 text-sm">
+                      High-power electrical appliances like heaters, irons, and
+                      cooking equipment are not allowed in rooms. Use designated
+                      areas.
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div
+                    class="w-6 h-6 flex items-center justify-center text-red-500 mt-0.5 mr-3"
+                  >
+                    <i class="ri-hammer-line"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">Property Damage</h4>
+                    <p class="text-gray-600 text-sm">
+                      Students will be charged for any damage to hostel
+                      property. Defacing walls, furniture, or fixtures is
+                      strictly prohibited.
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div
+                    class="w-6 h-6 flex items-center justify-center text-red-500 mt-0.5 mr-3"
+                  >
+                    <i class="ri-alarm-warning-line"></i>
+                    </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">
+                      Disciplinary Action
+                    </h4>
+                    <p class="text-gray-600 text-sm">
+                      Repeated rule violations will lead to disciplinary action,
+                      including warnings, fines, and potential expulsion from
+                      the hostel.
+                    </p>
+                    </div>
+                    </div>
+                    </div>
+                    </div>
+          <div
+            class="mt-8 p-4 bg-yellow-50 rounded-lg border border-yellow-200"
+          >
+            <div class="flex items-start">
+              <div
+                class="w-6 h-6 flex items-center justify-center text-yellow-600 mt-0.5 mr-3"
+              >
+                <i class="ri-information-line"></i>
+                    </div>
+              <div>
+                <h4 class="font-medium text-gray-900">Important Notice</h4>
+                <p class="text-gray-600 text-sm">
+                  New COVID-19 protocols are in effect. Face masks are
+                  recommended in common areas during high-traffic periods.
+                  Sanitization stations are available throughout the building.
+                </p>
+                    </div>
+            </div>
+          </div>
+          <div class="mt-6 text-center">
+            <a
+              href="#"
+              class="inline-flex items-center text-primary hover:text-primary-dark font-medium"
+            >
+              <span class="w-5 h-5 flex items-center justify-center mr-2">
+                <i class="ri-download-line"></i>
+              </span>
+              Download Complete Rulebook (PDF)
+            </a>
+            </div>
+        </div>
+      </div>
+    </section>
+    <!-- Nearby Restaurants Section -->
+    <section id="restaurants" class="py-16 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">
+          Nearby Restaurants
+        </h2>
+        <div class="restaurant-scroll overflow-x-auto pb-4">
+          <div class="flex space-x-6 min-w-max">
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden w-72">
+              <div class="h-40 overflow-hidden">
+                <img
+                  src="https://readdy.ai/api/search-image?query=cozy%20cafe%20interior%20with%20wooden%20tables%2C%20coffee%20cups%2C%20pastries%20display%2C%20warm%20lighting%2C%20students%20studying%2C%20casual%20atmosphere%2C%20high%20quality%20professional%20photography&width=300&height=160&seq=2&orientation=landscape"
+                  alt="Campus Cafe"
+                  class="w-full h-full object-cover object-top"
+                />
+              </div>
+              <div class="p-4">
+                <h3 class="text-lg font-semibold text-gray-900">Campus Cafe</h3>
+                <p class="text-sm text-gray-500 mb-2">
+                  Coffee, Sandwiches, Pastries
+                </p>
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center text-yellow-400 text-sm">
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-half-line"></i>
+                    </span>
+                    <span class="ml-1 text-gray-600">4.5</span>
+                  </div>
+                  <span class="text-sm text-gray-600">
+                    <span
+                      class="w-4 h-4 flex items-center justify-center inline-block"
+                    >
+                      <i class="ri-map-pin-line"></i>
+                    </span>
+                    150m
+                  </span>
+                </div>
+                <div class="flex items-center text-sm text-gray-600 mb-3">
+                  <span class="w-4 h-4 flex items-center justify-center mr-1">
+                    <i class="ri-time-line"></i>
+                  </span>
+                  <span>7 AM - 9 PM</span>
+                </div>
+                <a
+                  href="#"
+                  class="block text-center bg-primary text-white py-2 !rounded-button whitespace-nowrap transition-transform transform hover:scale-105"
+                  >View Menu</a
+                >
+              </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden w-72">
+              <div class="h-40 overflow-hidden">
+                <img
+                  src="https://readdy.ai/api/search-image?query=italian%20restaurant%20with%20pizza%20oven%2C%20pasta%20dishes%2C%20warm%20ambient%20lighting%2C%20rustic%20decor%2C%20cozy%20atmosphere%2C%20high%20quality%20professional%20photography&width=300&height=160&seq=3&orientation=landscape"
+                  alt="Bella Italia"
+                  class="w-full h-full object-cover object-top"
+                />
+              </div>
+              <div class="p-4">
+                <h3 class="text-lg font-semibold text-gray-900">
+                  Bella Italia
+                </h3>
+                <p class="text-sm text-gray-500 mb-2">Italian, Pizza, Pasta</p>
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center text-yellow-400 text-sm">
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-line"></i>
+                    </span>
+                    <span class="ml-1 text-gray-600">4.0</span>
+                  </div>
+                  <span class="text-sm text-gray-600">
+                    <span
+                      class="w-4 h-4 flex items-center justify-center inline-block"
+                    >
+                      <i class="ri-map-pin-line"></i>
+                    </span>
+                    350m
+                  </span>
+                </div>
+                <div class="flex items-center text-sm text-gray-600 mb-3">
+                  <span class="w-4 h-4 flex items-center justify-center mr-1">
+                    <i class="ri-time-line"></i>
+                  </span>
+                  <span>11 AM - 10 PM</span>
+                </div>
+                <a
+                  href="#"
+                  class="block text-center bg-primary text-white py-2 !rounded-button whitespace-nowrap transition-transform transform hover:scale-105"
+                  >View Menu</a
+                >
+              </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden w-72">
+              <div class="h-40 overflow-hidden">
+                <img
+                  src="https://readdy.ai/api/search-image?query=asian%20fusion%20restaurant%20with%20sushi%20bar%2C%20noodle%20dishes%2C%20modern%20decor%2C%20ambient%20lighting%2C%20busy%20atmosphere%2C%20high%20quality%20professional%20photography&width=300&height=160&seq=4&orientation=landscape"
+                  alt="Sushi Express"
+                  class="w-full h-full object-cover object-top"
+                />
+              </div>
+              <div class="p-4">
+                <h3 class="text-lg font-semibold text-gray-900">
+                  Sushi Express
+                </h3>
+                <p class="text-sm text-gray-500 mb-2">Japanese, Sushi, Ramen</p>
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center text-yellow-400 text-sm">
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-half-line"></i>
+                    </span>
+                    <span class="ml-1 text-gray-600">4.7</span>
+                  </div>
+                  <span class="text-sm text-gray-600">
+                    <span
+                      class="w-4 h-4 flex items-center justify-center inline-block"
+                    >
+                      <i class="ri-map-pin-line"></i>
+                    </span>
+                    500m
+                  </span>
+                </div>
+                <div class="flex items-center text-sm text-gray-600 mb-3">
+                  <span class="w-4 h-4 flex items-center justify-center mr-1">
+                    <i class="ri-time-line"></i>
+                  </span>
+                  <span>12 PM - 10 PM</span>
+                </div>
+                <a
+                  href="#"
+                  class="block text-center bg-primary text-white py-2 !rounded-button whitespace-nowrap transition-transform transform hover:scale-105"
+                  >View Menu</a
+                >
+              </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden w-72">
+              <div class="h-40 overflow-hidden">
+                <img
+                  src="https://readdy.ai/api/search-image?query=fast%20food%20restaurant%20with%20burgers%2C%20fries%2C%20milkshakes%2C%20casual%20seating%2C%20bright%20lighting%2C%20students%20hanging%20out%2C%20high%20quality%20professional%20photography&width=300&height=160&seq=5&orientation=landscape"
+                  alt="Burger Joint"
+                  class="w-full h-full object-cover object-top"
+                />
+              </div>
+              <div class="p-4">
+                <h3 class="text-lg font-semibold text-gray-900">
+                  Burger Joint
+                </h3>
+                <p class="text-sm text-gray-500 mb-2">
+                  Burgers, Fast Food, Shakes
+                </p>
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center text-yellow-400 text-sm">
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-half-line"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-line"></i>
+                    </span>
+                    <span class="ml-1 text-gray-600">3.5</span>
+                  </div>
+                  <span class="text-sm text-gray-600">
+                    <span
+                      class="w-4 h-4 flex items-center justify-center inline-block"
+                    >
+                      <i class="ri-map-pin-line"></i>
+                    </span>
+                    200m
+                  </span>
+                </div>
+                <div class="flex items-center text-sm text-gray-600 mb-3">
+                  <span class="w-4 h-4 flex items-center justify-center mr-1">
+                    <i class="ri-time-line"></i>
+                  </span>
+                  <span>10 AM - 11 PM</span>
+                </div>
+                <a
+                  href="#"
+                  class="block text-center bg-primary text-white py-2 !rounded-button whitespace-nowrap transition-transform transform hover:scale-105"
+                  >View Menu</a
+                >
+              </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden w-72">
+              <div class="h-40 overflow-hidden">
+                <img
+                  src="https://readdy.ai/api/search-image?query=vegetarian%20restaurant%20with%20salad%20bar%2C%20healthy%20bowls%2C%20plant-based%20dishes%2C%20bright%20modern%20interior%2C%20eco-friendly%20decor%2C%20high%20quality%20professional%20photography&width=300&height=160&seq=6&orientation=landscape"
+                  alt="Green Eats"
+                  class="w-full h-full object-cover object-top"
+                />
+              </div>
+              <div class="p-4">
+                <h3 class="text-lg font-semibold text-gray-900">Green Eats</h3>
+                <p class="text-sm text-gray-500 mb-2">
+                  Vegetarian, Healthy, Salads
+                </p>
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center text-yellow-400 text-sm">
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-fill"></i>
+                    </span>
+                    <span class="w-4 h-4 flex items-center justify-center">
+                      <i class="ri-star-line"></i>
+                    </span>
+                    <span class="ml-1 text-gray-600">4.2</span>
+                  </div>
+                  <span class="text-sm text-gray-600">
+                    <span
+                      class="w-4 h-4 flex items-center justify-center inline-block"
+                    >
+                      <i class="ri-map-pin-line"></i>
+                    </span>
+                    400m
+                  </span>
+                </div>
+                <div class="flex items-center text-sm text-gray-600 mb-3">
+                  <span class="w-4 h-4 flex items-center justify-center mr-1">
+                    <i class="ri-time-line"></i>
+                  </span>
+                  <span>8 AM - 8 PM</span>
+                </div>
+                <a
+                  href="#"
+                  class="block text-center bg-primary text-white py-2 !rounded-button whitespace-nowrap transition-transform transform hover:scale-105"
+                  >View Menu</a
+                >
+              </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </section>
+    <!-- Room Pricing Section -->
+    <section id="rooms" class="py-16 bg-white">
+      <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">
+          Room Pricing & Availability
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div
+            class="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div class="h-48 overflow-hidden">
+              <img
+                src="{{ url_for('static', filename='images/single-room.jpg') }}"
+                alt="Single Room"
+                class="w-full h-full object-cover object-top"
+              />
+            </div>
+            <div class="p-6">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-gray-900">Single Room</h3>
+                <span
+                  class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded"
+                  >Available</span
+                >
+              </div>
+              <p class="text-gray-600 mb-6">
+                Private room with a single bed, study desk, wardrobe, and
+                attached bathroom. Ideal for students who prefer privacy and
+                quiet study environment.
+              </p>
+              <div class="space-y-3 mb-6">
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-gray-500 mr-3"
+                  >
+                    <i class="ri-checkbox-circle-line"></i>
+                  </div>
+                  <span class="text-gray-600">Private bathroom</span>
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-gray-500 mr-3"
+                  >
+                    <i class="ri-checkbox-circle-line"></i>
+                  </div>
+                  <span class="text-gray-600">Air conditioning</span>
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-gray-500 mr-3"
+                  >
+                    <i class="ri-checkbox-circle-line"></i>
+                  </div>
+                  <span class="text-gray-fact">Study desk & chair</span>
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-gray-500 mr-3"
+                  >
+                    <i class="ri-checkbox-circle-line"></i>
+                  </div>
+                  <span class="text-gray-600">High-speed internet</span>
+                </div>
+              </div>
+              <div class="flex justify-between items-center mb-6">
+                <div>
+                  <span class="text-2xl font-bold text-gray-900">₹5500</span>
+                  <span class="text-gray-600">/month</span>
+                </div>
+                <div class="text-green-600 font-medium">8 rooms available</div>
+              </div>
+              <a
+                href="#"
+                class="block text-center bg-primary text-white py-3 !rounded-button whitespace-nowrap transition-transform transform hover:scale-105"
+                >Book Now</a
+              >
+            </div>
+          </div>
+          <div
+            class="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div class="h-48 overflow-hidden">
+              <img
+                src="https://readdy.ai/api/search-image?query=double%20occupancy%20student%20dorm%20room%20with%20two%20beds%2C%20two%20desks%2C%20shared%20wardrobe%2C%20neat%20and%20organized%2C%20large%20window%20with%20natural%20light%2C%20minimalist%20design%2C%20high%20quality%20professional%20photography&width=400&height=200&seq=8&orientation=landscape"
+                alt="Double Room"
+                class="w-full h-full object-cover object-top"
+              />
+            </div>
+            <div class="p-6">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-gray-900">Double Room</h3>
+                <span
+                  class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded"
+                  >Available</span
+                >
+              </div>
+              <p class="text-gray-600 mb-6">
+                Shared room with two single beds, study desks, wardrobes, and
+                attached bathroom. Perfect for students who enjoy companionship
+                while studying.
+              </p>
+              <div class="space-y-3 mb-6">
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-gray-500 mr-3"
+                  >
+                    <i class="ri-checkbox-circle-line"></i>
+                  </div>
+                  <span class="text-gray-600">Shared bathroom</span>
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-gray-500 mr-3"
+                  >
+                    <i class="ri-checkbox-circle-line"></i>
+                  </div>
+                  <span class="text-gray-600">Air conditioning</span>
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-gray-500 mr-3"
+                  >
+                    <i class="ri-checkbox-circle-line"></i>
+                  </div>
+                  <span class="text-gray-600">Two study desks & chairs</span>
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-gray-500 mr-3"
+                  >
+                    <i class="ri-checkbox-circle-line"></i>
+                  </div>
+                  <span class="text-gray-600">High-speed internet</span>
+                </div>
+              </div>
+              <div class="flex justify-between items-center mb-6">
+                <div>
+                  <span class="text-2xl font-bold text-gray-900">₹4000</span>
+                  <span class="text-gray-600">/month</span>
+                </div>
+                <div class="text-green-600 font-medium">15 rooms available</div>
+              </div>
+              <a
+                href="#"
+                class="block text-center bg-primary text-white py-3 !rounded-button whitespace-nowrap transition-transform transform hover:scale-105"
+                >Book Now</a
+              >
+            </div>
+          </div>
+          <div
+            class="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div class="h-48 overflow-hidden">
+              <img
+                src="https://readdy.ai/api/search-image?query=triple%20occupancy%20student%20dorm%20room%20with%20three%20beds%2C%20three%20desks%2C%20shared%20wardrobes%2C%20neat%20and%20organized%2C%20large%20window%20with%20natural%20light%2C%20minimalist%20design%2C%20high%20quality%20professional%20photography&width=400&height=200&seq=9&orientation=landscape"
+                alt="Triple Room"
+                class="w-full h-full object-cover object-top"
+              />
+            </div>
+            <div class="p-6">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-gray-900">Triple Room</h3>
+                <span
+                  class="bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-0.5 rounded"
+                  >Limited</span
+                >
+              </div>
+              <p class="text-gray-600 mb-6">
+                Shared room with three single beds, study desks, wardrobes, and
+                attached bathroom. Most economical option with a vibrant social
+                atmosphere.
+              </p>
+              <div class="space-y-3 mb-6">
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-gray-500 mr-3"
+                  >
+                    <i class="ri-checkbox-circle-line"></i>
+                  </div>
+                  <span class="text-gray-600">Shared bathroom</span>
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-gray-500 mr-3"
+                  >
+                    <i class="ri-checkbox-circle-line"></i>
+                  </div>
+                  <span class="text-gray-600">Air conditioning</span>
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-gray-500 mr-3"
+                  >
+                    <i class="ri-checkbox-circle-line"></i>
+                  </div>
+                  <span class="text-gray-600">Three study desks & chairs</span>
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center text-gray-500 mr-3"
+                  >
+                    <i class="ri-checkbox-circle-line"></i>
+                  </div>
+                  <span class="text-gray-600">High-speed internet</span>
+                    </div>
+                    </div>
+              <div class="flex justify-between items-center mb-6">
+                <div>
+                  <span class="text-2xl font-bold text-gray-900">₹3200</span>
+                  <span class="text-gray-600">/month</span>
+                    </div>
+                <div class="text-amber-600 font-medium">5 rooms available</div>
+                    </div>
+              <a
+                href="#"
+                class="block text-center bg-primary text-white py-3 !rounded-button whitespace-nowrap transition-transform transform hover:scale-105"
+                >Book Now</a
+              >
+            </div>
+            </div>
+        </div>
+    </div>
+    </section>
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-12 pb-8">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <h1 class="text-2xl font-['Pacifico'] text-white mb-4">
+              HostelHub
+            </h1>
+            <p class="text-gray-400 mb-4">
+              Providing comfortable and affordable accommodation for students
+              since 2010.
+            </p>
+            <div class="flex space-x-4">
+              <a href="#" class="text-gray-400 hover:text-white">
+                <span
+                  class="w-8 h-8 flex items-center justify-center bg-gray-800 rounded-full"
+                >
+                  <i class="ri-facebook-fill"></i>
+                </span>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-white">
+                <span
+                  class="w-8 h-8 flex items-center justify-center bg-gray-800 rounded-full"
+                >
+                  <i class="ri-twitter-x-fill"></i>
+                </span>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-white">
+                <span
+                  class="w-8 h-8 flex items-center justify-center bg-gray-800 rounded-full"
+                >
+                  <i class="ri-instagram-fill"></i>
+                </span>
+              </a>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="#overview" class="text-gray-400 hover:text-white"
+                  >Overview</a
+                >
+              </li>
+              <li>
+                <a href="#amenities" class="text-gray-400 hover:text-white"
+                  >Amenities</a
+                >
+              </li>
+              <li>
+                <a href="#rules" class="text-gray-400 hover:text-white"
+                  >Rules & Regulations</a
+                >
+              </li>
+              <li>
+                <a href="#restaurants" class="text-gray-400 hover:text-white"
+                  >Nearby Restaurants</a
+                >
+              </li>
+              <li>
+                <a href="#rooms" class="text-gray-400 hover:text-white"
+                  >Room Pricing</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+            <ul class="space-y-2">
+              <li class="flex items-start">
+                <span
+                  class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5 text-gray-400"
+                >
+                  <i class="ri-map-pin-line"></i>
+                </span>
+                <span class="text-gray-400"
+                  >123 University Avenue, Campus District, CA 90210</span
+                >
+              </li>
+              <li class="flex items-center">
+                <span
+                  class="w-5 h-5 flex items-center justify-center mr-2 text-gray-400"
+                >
+                  <i class="ri-phone-line"></i>
+                </span>
+                <span class="text-gray-400">(555) 123-4567</span>
+              </li>
+              <li class="flex items-center">
+                <span
+                  class="w-5 h-5 flex items-center justify-center mr-2 text-gray-400"
+                >
+                  <i class="ri-mail-line"></i>
+                </span>
+                <span class="text-gray-400">info@hostelhub.com</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div
+          class="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center"
+        >
+          <p class="text-gray-400 text-sm mb-4 md:mb-0">
+            © 2025 HostelHub. All rights reserved.
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-white text-sm"
+              >Privacy Policy</a
+            >
+            <a href="#" class="text-gray-400 hover:text-white text-sm"
+              >Terms of Service</a
+            >
+            <a href="#" class="text-gray-400 hover:text-white text-sm"
+              >Cookie Policy</a
+            >
+          </div>
+        </div>
+        </div>
+    </footer>
+    <!-- Back to top button -->
+    <button
+      id="back-to-top"
+      class="fixed bottom-6 right-6 bg-primary text-white rounded-full p-3 shadow-lg hidden"
+    >
+      <span class="w-6 h-6 flex items-center justify-center">
+        <i class="ri-arrow-up-line"></i>
+      </span>
+    </button>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Login dropdown
+        const loginButton = document.getElementById("login-button");
+        const dropdownMenu = document.getElementById("dropdown-menu");
+        loginButton.addEventListener("click", function () {
+          dropdownMenu.classList.toggle("active");
+        });
+        document.addEventListener("click", function (event) {
+          if (!event.target.closest("#login-dropdown")) {
+            dropdownMenu.classList.remove("active");
+          }
+        });
+      });
+      document.addEventListener("DOMContentLoaded", function () {
+        // Back to top button
+        const backToTopButton = document.getElementById("back-to-top");
+        window.addEventListener("scroll", function () {
+          if (window.pageYOffset > 300) {
+            backToTopButton.classList.remove("hidden");
+          } else {
+            backToTopButton.classList.add("hidden");
+          }
+        });
+        backToTopButton.addEventListener("click", function () {
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        });
+      });
+      document.addEventListener("DOMContentLoaded", function () {
+        // Smooth scrolling for navigation links
+        const navLinks = document.querySelectorAll('a[href^="#"]');
+        navLinks.forEach((link) => {
+          link.addEventListener("click", function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute("href");
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+              window.scrollTo({
+                top: targetElement.offsetTop - 80,
+                behavior: "smooth",
+              });
+            }
+          });
+        });
+      });
+    </script>
+</body>
+</html>
